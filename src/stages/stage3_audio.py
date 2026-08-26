@@ -9,8 +9,8 @@ from src.config import get_device, get_stage_config
 
 def run_stage3_audio(audio_path: str, job_id: str):
     """
-    Runs audio deepfake detection on the extracted audio.
-    Processes audio in chunks to prevent VRAM overflow.
+    Runs audio deepfake detection on the extracted audio with acoustic normalization.
+    Processes audio in chunks to prevent VRAM overflow and isolate spliced segments.
     Returns:
         dict: {
             "avg_score": float,
@@ -18,10 +18,10 @@ def run_stage3_audio(audio_path: str, job_id: str):
             "flagged_segments": list[dict] # {"start": float, "end": float, "score": float}
         }
     """
-    print(f"[{job_id}] Running Stage 3: Audio Deepfake Detection")
+    print(f"[{job_id}] Running Stage 3: Audio Deepfake Detection (Normalized)")
     stage_config = get_stage_config("stage3_audio")
     device = "cpu" if stage_config.get("use_cpu") else get_device()
-    model_id = stage_config.get("model_id", "Wvolf/wav2vec2-xls-r-300m-deepfake")
+    model_id = stage_config.get("model_id", "MelodyMachine/Deepfake-Audio-Detection-V2")
     
     result = {
         "avg_score": 0.0,
@@ -45,6 +45,11 @@ def run_stage3_audio(audio_path: str, job_id: str):
         target_sr = 16000
         audio, sr = librosa.load(audio_path, sr=target_sr)
         
+        # Acoustic Normalization (DC offset removal + Peak scaling)
+        if len(audio) > 0 and np.max(np.abs(audio)) > 0:
+            audio = audio - np.mean(audio)
+            audio = audio / np.max(np.abs(audio))
+        
         # Process in 5-second chunks (5 * 16000 = 80000 samples)
         chunk_duration = 5.0
         chunk_samples = int(chunk_duration * target_sr)
@@ -54,8 +59,8 @@ def run_stage3_audio(audio_path: str, job_id: str):
         
         for i in range(0, len(audio), chunk_samples):
             chunk = audio[i:i+chunk_samples]
-            if len(chunk) < target_sr: # Skip chunks < 1s
-                continue
+            if len(chunk) < target_sr: # If tail chunk is short, pad to 1 sec so we don't miss the end
+                chunk = np.pad(chunk, (0, target_sr - len(chunk)), 'constant')
                 
             proc_out = processor(chunk, sampling_rate=target_sr, return_tensors="pt", padding=True)
             model_dtype = next(model.parameters()).dtype
@@ -95,7 +100,7 @@ def run_stage3_audio(audio_path: str, job_id: str):
             result["avg_score"] = float(np.mean(scores))
             result["max_score"] = max_s
             
-        print(f"[{job_id}] Audio complete. Max Fake Score: {max_s:.4f}")
+        print(f"[{job_id}] Audio complete. Max Fake Score: {max_s:.4f}, Segments Scanned: {len(scores)}")
         
     except Exception as e:
         print(f"[{job_id}] Audio stage failed: {e}")

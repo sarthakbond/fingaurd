@@ -9,9 +9,9 @@ thresholds:
 
 pipeline:
   stage1_ingest:
-    max_frames_to_extract: 15
+    max_frames_to_extract: 25
     audio_sample_rate: 16000
-    face_detector_model: "MTCNN" # Using MTCNN for low VRAM footprint
+    face_detector_model: "MTCNN"
   
   stage2_vision:
     model_id: "AdityaManojShinde/deepfake-detector"

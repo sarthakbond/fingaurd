@@ -1,17 +1,170 @@
 [
-    {
-        "name": "Zerodha Broking Limited",
-        "registration_number": "INZ000031633",
-        "type": "Stock Broker"
-    },
-    {
-        "name": "InvestRight Advisors",
-        "registration_number": "INA000012345",
-        "type": "Investment Advisor"
-    },
-    {
-        "name": "Prudent Wealth Management",
-        "registration_number": "INA000098765",
-        "type": "Investment Advisor"
-    }
+  {
+    "name": "Zerodha Broking Limited",
+    "aliases": ["Zerodha", "Zerodha Broking", "Kite by Zerodha", "True Beacon"],
+    "registration_number": "INZ000031633",
+    "type": "Stock Broker / RIA",
+    "status": "Active"
+  },
+  {
+    "name": "Nextbillion Technology Private Limited",
+    "aliases": ["Groww", "Groww Invest Tech", "Groww App"],
+    "registration_number": "INZ000301838",
+    "type": "Stock Broker / RIA",
+    "status": "Active"
+  },
+  {
+    "name": "Angel One Limited",
+    "aliases": ["Angel One", "Angel Broking", "Angel SpeedPro"],
+    "registration_number": "INZ000161534",
+    "type": "Stock Broker / RA",
+    "status": "Active"
+  },
+  {
+    "name": "ICICI Securities Limited",
+    "aliases": ["ICICI Direct", "ICICI Securities", "I-Sec"],
+    "registration_number": "INZ000183631",
+    "type": "Stock Broker / RA / RIA",
+    "status": "Active"
+  },
+  {
+    "name": "HDFC Securities Limited",
+    "aliases": ["HDFC Securities", "HDFC Sky", "HDFC Sec"],
+    "registration_number": "INZ000186937",
+    "type": "Stock Broker / RA",
+    "status": "Active"
+  },
+  {
+    "name": "Kotak Securities Limited",
+    "aliases": ["Kotak Securities", "Kotak Neo", "Kotak Stock Trading"],
+    "registration_number": "INZ000200137",
+    "type": "Stock Broker / RA / RIA",
+    "status": "Active"
+  },
+  {
+    "name": "Motilal Oswal Financial Services Limited",
+    "aliases": ["Motilal Oswal", "MOFSL", "Motilal Oswal Securities"],
+    "registration_number": "INZ000158836",
+    "type": "Stock Broker / RA / RIA",
+    "status": "Active"
+  },
+  {
+    "name": "Sharekhan Limited",
+    "aliases": ["Sharekhan", "Sharekhan BNP Paribas", "Espresso by Sharekhan"],
+    "registration_number": "INZ000171337",
+    "type": "Stock Broker / RA",
+    "status": "Active"
+  },
+  {
+    "name": "5paisa Capital Limited",
+    "aliases": ["5paisa", "5paisa Capital"],
+    "registration_number": "INZ000010231",
+    "type": "Stock Broker / RA",
+    "status": "Active"
+  },
+  {
+    "name": "Anand Rathi Share and Stock Brokers Limited",
+    "aliases": ["Anand Rathi", "Anand Rathi Wealth", "Anand Rathi Securities"],
+    "registration_number": "INZ000170832",
+    "type": "Stock Broker / RA / RIA",
+    "status": "Active"
+  },
+  {
+    "name": "Geojit Financial Services Limited",
+    "aliases": ["Geojit", "Geojit BNP Paribas", "Geojit Financial"],
+    "registration_number": "INZ000104737",
+    "type": "Stock Broker / RA",
+    "status": "Active"
+  },
+  {
+    "name": "Axis Securities Limited",
+    "aliases": ["Axis Securities", "Axis Direct", "Axis Sec"],
+    "registration_number": "INZ000161633",
+    "type": "Stock Broker / RA",
+    "status": "Active"
+  },
+  {
+    "name": "SBICAP Securities Limited",
+    "aliases": ["SBICAP Securities", "SBI Securities", "SBI Smart"],
+    "registration_number": "INZ000200032",
+    "type": "Stock Broker / RA",
+    "status": "Active"
+  },
+  {
+    "name": "Paytm Money Limited",
+    "aliases": ["Paytm Money", "Paytm Wealth"],
+    "registration_number": "INA100009859",
+    "type": "Investment Advisor",
+    "status": "Active"
+  },
+  {
+    "name": "Kuvera (VittBank Technology Private Limited)",
+    "aliases": ["Kuvera", "Kuvera.in", "VittBank"],
+    "registration_number": "INA200005166",
+    "type": "Investment Advisor",
+    "status": "Active"
+  },
+  {
+    "name": "ET Money (Banayantree Services Limited)",
+    "aliases": ["ET Money", "ETMoney", "Banayantree Services"],
+    "registration_number": "INA800007749",
+    "type": "Investment Advisor",
+    "status": "Active"
+  },
+  {
+    "name": "Windmill Capital Private Limited",
+    "aliases": ["Windmill Capital", "smallcase", "Smallcase Managers"],
+    "registration_number": "INH200007665",
+    "type": "Research Analyst",
+    "status": "Active"
+  },
+  {
+    "name": "Wright Research & Capital Private Limited",
+    "aliases": ["Wright Research", "Sonam Srivastava Wright"],
+    "registration_number": "INH000008404",
+    "type": "Research Analyst",
+    "status": "Active"
+  },
+  {
+    "name": "WeekendInvesting Analytics Private Limited",
+    "aliases": ["WeekendInvesting", "Weekend Investing", "Alok Jain Weekend"],
+    "registration_number": "INH100008717",
+    "type": "Research Analyst",
+    "status": "Active"
+  },
+  {
+    "name": "Capitalmind Financial Services Private Limited",
+    "aliases": ["Capitalmind", "Deepak Shenoy Capitalmind", "Capitalmind Wealth"],
+    "registration_number": "INA000013518",
+    "type": "Investment Advisor",
+    "status": "Active"
+  },
+  {
+    "name": "Finology Ventures Private Limited",
+    "aliases": ["Finology", "Finology Ticker", "Pranjal Kamra Finology"],
+    "registration_number": "INH000012249",
+    "type": "Research Analyst",
+    "status": "Active"
+  },
+  {
+    "name": "Value Research Private Limited",
+    "aliases": ["Value Research", "Value Research Online", "Dhirendra Kumar Value Research"],
+    "registration_number": "INA100005503",
+    "type": "Investment Advisor",
+    "status": "Active"
+  },
+  {
+    "name": "InvestRight Advisors",
+    "aliases": ["InvestRight", "InvestRight Wealth"],
+    "registration_number": "INA000012345",
+    "type": "Investment Advisor",
+    "status": "Active"
+  },
+  {
+    "name": "Prudent Wealth Management Private Limited",
+    "aliases": ["Prudent Wealth", "Prudent Corporate"],
+    "registration_number": "INA000098765",
+    "type": "Investment Advisor",
+    "status": "Active"
+  }
 ]
