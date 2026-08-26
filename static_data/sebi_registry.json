@@ -1,0 +1,17 @@
+[
+    {
+        "name": "Zerodha Broking Limited",
+        "registration_number": "INZ000031633",
+        "type": "Stock Broker"
+    },
+    {
+        "name": "InvestRight Advisors",
+        "registration_number": "INA000012345",
+        "type": "Investment Advisor"
+    },
+    {
+        "name": "Prudent Wealth Management",
+        "registration_number": "INA000098765",
+        "type": "Investment Advisor"
+    }
+]

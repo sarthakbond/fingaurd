@@ -1,0 +1,43 @@
+hardware:
+  device: "cuda"
+  force_cpu: false
+
+thresholds:
+  vision_fake_threshold: 0.5
+  audio_fake_threshold: 0.5
+  sebi_risk_threshold: 0.7
+
+pipeline:
+  stage1_ingest:
+    max_frames_to_extract: 15
+    audio_sample_rate: 16000
+    face_detector_model: "MTCNN" # Using MTCNN for low VRAM footprint
+  
+  stage2_vision:
+    model_id: "AdityaManojShinde/deepfake-detector"
+    use_cpu: false
+    
+  stage3_audio:
+    model_id: "MelodyMachine/Deepfake-Audio-Detection-V2"
+    use_cpu: false
+    
+  stage4_transcription:
+    model_id: "Systran/faster-whisper-medium"
+    compute_type: "int8"
+    use_cpu: false
+    
+  stage5_llm:
+    model_id: "llama3.1:latest"
+    api_url: "http://localhost:11434/api/chat"
+    
+  stage6_registry:
+    # URL to fetch or path to mock file
+    source: "static_data/sebi_registry.json" 
+    refresh_interval_hours: 168
+
+backup_apis:
+  # Set to true during hackathon if you want to enable cloud API fallbacks
+  enable_cloud_fallback: false
+  sightengine:
+    enabled: false
+    models: "deepfake,genai"

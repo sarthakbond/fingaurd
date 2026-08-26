@@ -1,0 +1,17 @@
+# Environment & secrets
+.env
+*.env
+
+# Virtual environments
+.venv/
+env/
+venv/
+
+# Caches & temporary files
+temp/
+dataset/
+__pycache__/
+*.pyc
+*.log
+.pytest_cache/
+test_results.csv
