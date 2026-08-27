@@ -1,181 +1,177 @@
-/**
- * FinGuard Chrome Extension — Content Script
- * Receives scan results from background worker and safely displays inline notifications.
- * Uses safe DOM elements to prevent any script or markup injection.
- */
+"use strict";
 
-// ── Inject notification container ──────────────────────────────────
-function getOrCreateContainer() {
-  let container = document.getElementById('finguard-toast-container');
-  if (!container) {
-    container = document.createElement('div');
-    container.id = 'finguard-toast-container';
-    container.style.cssText = `
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      z-index: 2147483647;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      pointer-events: none;
-    `;
-    document.body.appendChild(container);
+// FinGuard in-page toast. Rendered inside a closed Shadow DOM so the host
+// page's CSS can't bleed in, and every dynamic field is set via textContent —
+// never innerHTML — so a scanned page can't smuggle markup into the notification.
+
+(function () {
+  const HOST_ID = "finguard-toast-host";
+
+  function levelFromResult(data) {
+    const isDeepfake = !!data.is_deepfake;
+    const isScam = !!data.is_scam;
+    const composite = typeof data.composite_risk_score === "number"
+      ? data.composite_risk_score
+      : (data.sebi_analysis && data.sebi_analysis.composite_risk_score) || 0;
+
+    if (isDeepfake && isScam) return { level: "critical", label: "CRITICAL VIOLATION", color: "#e0576a" };
+    if (isDeepfake) return { level: "warning", label: "DEEPFAKE FLAGGED", color: "#d9a441" };
+    if (isScam) return { level: "warning", label: "SEBI VIOLATION FLAGGED", color: "#d9a441" };
+    if (composite >= 0.35) return { level: "suspicious", label: "SUSPICIOUS CONTENT", color: "#d9a441" };
+    return { level: "safe", label: "VERIFIED SAFE", color: "#22c58b" };
   }
-  return container;
-}
 
-function ensureAnimationStyles() {
-  if (!document.getElementById('finguard-styles')) {
-    const style = document.createElement('style');
-    style.id = 'finguard-styles';
+  function buildShadow(host) {
+    const root = host.attachShadow({ mode: "closed" });
+    const style = document.createElement("style");
     style.textContent = `
-      @keyframes finguardSlideIn {
-        from { transform: translateX(100%); opacity: 0; }
-        to { transform: translateX(0); opacity: 1; }
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap');
+      :host { all: initial; }
+      .toast {
+        position: fixed; top: 24px; right: 24px; z-index: 2147483647;
+        width: 320px; font-family: 'Inter', sans-serif; color: #eaf1ea;
+        background: linear-gradient(180deg, #101c18, #0d1815);
+        border: 1px solid rgba(201,162,39,0.22);
+        border-left: 3px solid var(--accent, #22c58b);
+        border-radius: 8px; padding: 14px 16px;
+        box-shadow: 0 12px 32px rgba(0,0,0,0.55);
+        transform: translateX(120%); opacity: 0;
+        transition: transform .35s cubic-bezier(.22,.9,.32,1), opacity .35s ease;
       }
-      @keyframes finguardSlideOut {
-        from { transform: translateX(0); opacity: 1; }
-        to { transform: translateX(100%); opacity: 0; }
-      }
-      @keyframes finguardSpin {
-        to { transform: rotate(360deg); }
-      }
+      .toast.in { transform: translateX(0); opacity: 1; }
+      .row { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+      .label { font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; letter-spacing: 0.06em; color: var(--accent, #22c58b); font-weight: 600; }
+      .title { font-size: 13px; font-weight: 600; margin-top: 4px; color: #eaf1ea; }
+      .meta { font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; color: #93a99a; margin-top: 6px; }
+      .close { background: none; border: none; color: #5e7568; cursor: pointer; font-size: 15px; line-height: 1; padding: 0; }
+      .close:hover { color: #eaf1ea; }
+      .bar-track { height: 3px; background: rgba(255,255,255,0.08); border-radius: 2px; margin-top: 10px; overflow: hidden; }
+      .bar-fill { height: 100%; background: var(--accent, #22c58b); width: 100%; transform-origin: left; }
+      .bar-fill.count { animation: fg-countdown 6s linear forwards; }
+      @keyframes fg-countdown { from { transform: scaleX(1); } to { transform: scaleX(0); } }
+      @media (prefers-reduced-motion: reduce) { .toast, .bar-fill.count { animation: none !important; transition: none !important; } }
     `;
-    document.head.appendChild(style);
-  }
-}
-
-function showToastNode(elementNode, duration = 8000) {
-  ensureAnimationStyles();
-  const container = getOrCreateContainer();
-  const toast = document.createElement('div');
-  toast.style.cssText = `
-    background: #0f1623;
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 12px;
-    padding: 14px 18px;
-    color: #f1f5f9;
-    font-size: 13px;
-    line-height: 1.5;
-    max-width: 360px;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
-    pointer-events: auto;
-    animation: finguardSlideIn 0.3s ease;
-    backdrop-filter: blur(12px);
-  `;
-  toast.appendChild(elementNode);
-  container.appendChild(toast);
-
-  if (duration > 0) {
-    setTimeout(() => {
-      toast.style.animation = 'finguardSlideOut 0.3s ease forwards';
-      setTimeout(() => toast.remove(), 300);
-    }, duration);
+    root.appendChild(style);
+    return root;
   }
 
-  return toast;
-}
+  function showToast(data) {
+    const existing = document.getElementById(HOST_ID);
+    if (existing) existing.remove();
 
-// ── Message Listener ───────────────────────────────────────────────
-chrome.runtime.onMessage.addListener((msg) => {
-  if (msg.type === 'FINGUARD_SCANNING') {
-    const wrap = document.createElement('div');
-    wrap.style.cssText = 'display:flex;align-items:center;gap:10px;';
+    const host = document.createElement("div");
+    host.id = HOST_ID;
+    document.documentElement.appendChild(host);
+    const root = buildShadow(host);
+
+    const { label, color } = levelFromResult(data);
+    const composite = typeof data.composite_risk_score === "number"
+      ? data.composite_risk_score
+      : (data.sebi_analysis && data.sebi_analysis.composite_risk_score) || 0;
     
-    const spinner = document.createElement('div');
-    spinner.style.cssText = 'width:18px;height:18px;border:2px solid rgba(255,255,255,0.2);border-top-color:#3b82f6;border-radius:50%;animation:finguardSpin 0.8s linear infinite;';
-    
-    const text = document.createElement('span');
-    text.textContent = `FinGuard is scanning ${msg.scanType || 'content'}...`;
-    
-    wrap.appendChild(spinner);
-    wrap.appendChild(text);
-    showToastNode(wrap, 30000);
-  }
-
-  if (msg.type === 'FINGUARD_RESULT') {
-    const container = getOrCreateContainer();
-    container.innerHTML = '';
-
-    const data = msg.data || {};
-    const verdict = data.verdict || 'Unknown';
-    const risk = ((data.composite_risk_score || 0) * 100).toFixed(0);
-
-    let borderColor, icon;
-    if (verdict.includes('Critical')) { borderColor = '#f43f5e'; icon = '🚨'; }
-    else if (verdict.includes('Warning')) { borderColor = '#f59e0b'; icon = '⚠️'; }
-    else { borderColor = '#10b981'; icon = '✅'; }
-
     const sebi = data.sebi_analysis || {};
-    const flagCount = (sebi.specific_return_promises || []).length +
-      (sebi.implied_returns || []).length +
-      (sebi.urgency_scarcity_language || []).length +
-      (sebi.social_proof_inflation || []).length +
-      (sebi.paywall_push || []).length +
-      (sebi.credential_misrepresentation || []).length;
+    const quotes = [
+      ...(sebi.specific_return_promises || []),
+      ...(sebi.implied_returns || []),
+      ...(sebi.urgency_scarcity_language || []),
+      ...(sebi.paywall_push || []),
+      ...(sebi.credential_misrepresentation || []),
+      ...(sebi.flagged_statements || []),
+      ...(data.flagged_statements || [])
+    ].filter(Boolean);
 
-    const wrap = document.createElement('div');
-    wrap.style.borderLeft = `3px solid ${borderColor}`;
-    wrap.style.paddingLeft = '12px';
+    const toast = document.createElement("div");
+    toast.className = "toast";
+    toast.style.setProperty("--accent", color);
 
-    const titleEl = document.createElement('div');
-    titleEl.style.cssText = 'font-weight:700;font-size:14px;margin-bottom:4px;';
-    titleEl.textContent = `${icon} ${verdict}`;
-    wrap.appendChild(titleEl);
+    const row = document.createElement("div");
+    row.className = "row";
 
-    const riskEl = document.createElement('div');
-    riskEl.style.cssText = 'color:#94a3b8;font-size:12px;';
-    riskEl.textContent = 'Risk Score: ';
-    const riskVal = document.createElement('span');
-    riskVal.style.color = borderColor;
-    riskVal.style.fontWeight = '600';
-    riskVal.textContent = `${risk}%`;
-    riskEl.appendChild(riskVal);
-    wrap.appendChild(riskEl);
+    const left = document.createElement("div");
+    const labelEl = document.createElement("div");
+    labelEl.className = "label";
+    labelEl.textContent = label;
+    const titleEl = document.createElement("div");
+    titleEl.className = "title";
+    titleEl.textContent = data.verdict || "Forensic Scan Complete";
+    left.appendChild(labelEl);
+    left.appendChild(titleEl);
 
-    if (flagCount > 0) {
-      const flagEl = document.createElement('div');
-      flagEl.style.cssText = 'color:#94a3b8;font-size:12px;margin-top:2px;';
-      flagEl.textContent = `${flagCount} red flag${flagCount > 1 ? 's' : ''} detected`;
-      wrap.appendChild(flagEl);
+    const closeBtn = document.createElement("button");
+    closeBtn.className = "close";
+    closeBtn.setAttribute("aria-label", "Dismiss");
+    closeBtn.textContent = "✕";
+    closeBtn.addEventListener("click", () => dismiss());
+
+    row.appendChild(left);
+    row.appendChild(closeBtn);
+
+    const metaEl = document.createElement("div");
+    metaEl.className = "meta";
+    metaEl.textContent = "Fraud Risk " + Math.round(composite * 100) + "%  ·  " + quotes.length + " flag" + (quotes.length === 1 ? "" : "s");
+
+    const barTrack = document.createElement("div");
+    barTrack.className = "bar-track";
+    const barFill = document.createElement("div");
+    barFill.className = "bar-fill count";
+    barTrack.appendChild(barFill);
+
+    toast.appendChild(row);
+    toast.appendChild(metaEl);
+    toast.appendChild(barTrack);
+    root.appendChild(toast);
+
+    requestAnimationFrame(() => toast.classList.add("in"));
+
+    let dismissed = false;
+    function dismiss() {
+      if (dismissed) return;
+      dismissed = true;
+      toast.classList.remove("in");
+      setTimeout(() => host.remove(), 350);
     }
-
-    if (sebi.reasoning) {
-      const reasonEl = document.createElement('div');
-      reasonEl.style.cssText = 'color:#94a3b8;font-size:11px;margin-top:6px;border-top:1px solid rgba(255,255,255,0.06);padding-top:6px;';
-      const truncated = sebi.reasoning.length > 150 ? sebi.reasoning.substring(0, 150) + '...' : sebi.reasoning;
-      reasonEl.textContent = truncated;
-      wrap.appendChild(reasonEl);
-    }
-
-    const hintEl = document.createElement('div');
-    hintEl.style.cssText = 'color:#64748b;font-size:10px;margin-top:6px;';
-    hintEl.textContent = 'Click FinGuard extension for full report';
-    wrap.appendChild(hintEl);
-
-    showToastNode(wrap, 12000);
+    const timer = setTimeout(dismiss, 6000);
+    toast.addEventListener("mouseenter", () => { clearTimeout(timer); barFill.style.animationPlayState = "paused"; });
   }
 
-  if (msg.type === 'FINGUARD_ERROR') {
-    const container = getOrCreateContainer();
-    container.innerHTML = '';
+  function showScanningToast(scanType) {
+    const existing = document.getElementById(HOST_ID);
+    if (existing) existing.remove();
 
-    const wrap = document.createElement('div');
-    wrap.style.borderLeft = '3px solid #f43f5e';
-    wrap.style.paddingLeft = '12px';
+    const host = document.createElement("div");
+    host.id = HOST_ID;
+    document.documentElement.appendChild(host);
+    const root = buildShadow(host);
 
-    const titleEl = document.createElement('div');
-    titleEl.style.fontWeight = '600';
-    titleEl.textContent = '❌ FinGuard Error';
-    wrap.appendChild(titleEl);
+    const toast = document.createElement("div");
+    toast.className = "toast";
+    toast.style.setProperty("--accent", "#22c58b");
 
-    const msgEl = document.createElement('div');
-    msgEl.style.cssText = 'color:#94a3b8;font-size:12px;margin-top:4px;';
-    msgEl.textContent = msg.message || 'An error occurred during scan';
-    wrap.appendChild(msgEl);
+    const labelEl = document.createElement("div");
+    labelEl.className = "label";
+    labelEl.textContent = "⚡ FINGUARD SCANNING";
 
-    showToastNode(wrap, 6000);
+    const titleEl = document.createElement("div");
+    titleEl.className = "title";
+    titleEl.textContent = `Running forensic AI pipeline on ${scanType || "content"}…`;
+
+    toast.appendChild(labelEl);
+    toast.appendChild(titleEl);
+    root.appendChild(toast);
+
+    requestAnimationFrame(() => toast.classList.add("in"));
   }
-});
+
+  if (typeof chrome !== "undefined" && chrome.runtime && chrome.runtime.onMessage) {
+    chrome.runtime.onMessage.addListener((message) => {
+      if (message && message.type === "FINGUARD_SCANNING") {
+        showScanningToast(message.scanType);
+      } else if (message && message.type === "FINGUARD_RESULT") {
+        const payload = message.data || message.result || message;
+        showToast(payload);
+      } else if (message && message.type === "FINGUARD_ERROR") {
+        showToast({ verdict: "Scan failed — check FinGuard server connection", is_scam: false, is_deepfake: false, composite_risk_score: 0 });
+      }
+    });
+  }
+})();

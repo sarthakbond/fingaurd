@@ -1,66 +1,61 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=400">
-  <title>FinGuard</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="popup.css">
+<meta charset="UTF-8">
+<title>FinGuard</title>
+<link rel="stylesheet" href="popup.css">
 </head>
 <body>
-  <!-- Header -->
-  <div class="header">
-    <div class="header-row">
-      <h1>⚡ FinGuard</h1>
-      <div class="status-dot" id="status-dot" title="Checking connection..."></div>
+  <header class="pop-header">
+    <div class="pop-brand">
+      <svg class="pop-mark" viewBox="0 0 48 48" fill="none">
+        <path d="M24 3L42 10V23C42 34 34.5 42.5 24 45C13.5 42.5 6 34 6 23V10L24 3Z" stroke="#c9a227" stroke-width="2"/>
+        <path d="M24 8L37 13V23C37 31.5 31.5 38 24 40C16.5 38 11 31.5 11 23V13L24 8Z" fill="#0e6b4f" fill-opacity="0.35" stroke="#22c58b" stroke-width="1.4"/>
+        <path d="M17.5 24L22 28.5L31 18.5" stroke="#e8c65a" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span class="pop-word">FinGuard</span>
     </div>
-    <p class="subtitle">AI Scam & Deepfake Detector</p>
+    <button id="settingsBtn" class="icon-btn" title="Settings" aria-label="Settings">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06A1.65 1.65 0 004.6 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06A1.65 1.65 0 009 4.6a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09A1.65 1.65 0 0015 4.6a1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+    </button>
+  </header>
+
+  <div class="status-row">
+    <span class="status-dot" id="statusDot"></span>
+    <span id="statusText">Checking connection…</span>
   </div>
 
-  <!-- Settings -->
-  <div class="settings-section" id="settings-section">
-    <div class="setting-row">
-      <label for="api-url-input">API Server URL</label>
-      <div class="input-row">
-        <input type="text" id="api-url-input" placeholder="http://localhost:8000">
-        <button class="btn-sm" id="save-url-btn" onclick="saveApiUrl()">Save</button>
+  <!-- SETTINGS PANEL -->
+  <section id="settingsPanel" class="settings-panel">
+    <label class="field-label" for="apiUrlInput">API Server URL</label>
+    <input id="apiUrlInput" class="field-input" type="text" placeholder="http://localhost:8000" spellcheck="false">
+    <button id="saveSettingsBtn" class="btn btn-primary btn-full">Save Settings</button>
+  </section>
+
+  <!-- MAIN VIEW -->
+  <main id="mainView">
+    <textarea id="quickText" class="quick-text" placeholder="Paste a message, tip, or forward to check…" rows="4"></textarea>
+    <div class="btn-row">
+      <button id="scanBtn" class="btn btn-primary" disabled>Scan Text</button>
+      <button id="demoBtn" class="btn btn-ghost">▶ Demo</button>
+    </div>
+    <div id="errorBox" class="error-box"></div>
+
+    <div id="resultCard" class="result-card">
+      <div class="result-top">
+        <div id="resultStamp" class="mini-stamp"></div>
+        <div>
+          <div id="resultTitle" class="result-title"></div>
+          <div id="resultDesc" class="result-desc"></div>
+        </div>
       </div>
-    </div>
-  </div>
-
-  <!-- Quick Scan -->
-  <div class="quick-scan">
-    <textarea id="quick-text" placeholder="Paste suspicious text here and scan instantly..."></textarea>
-    <button class="btn-primary" id="quick-scan-btn" onclick="quickScan()">🔍 Scan Text</button>
-  </div>
-
-  <!-- Result Section -->
-  <div id="result-section" style="display:none">
-    <div class="result-banner" id="result-banner">
-      <div class="result-verdict" id="result-verdict">—</div>
-      <div class="result-risk" id="result-risk">Risk: —</div>
+      <div class="mini-meter"><div id="resultMeterFill" class="mini-meter__fill"></div></div>
+      <div id="resultTopFlag" class="result-flag"></div>
+      <button id="openDashboardBtn" class="link-btn">Open full forensic dashboard ↗</button>
     </div>
 
-    <!-- Signal bars -->
-    <div class="signals-compact" id="signals-compact"></div>
-
-    <!-- Flags -->
-    <div id="flags-compact" style="display:none">
-      <div class="section-label">🚩 Flags</div>
-      <div id="flags-list"></div>
-    </div>
-
-    <!-- Reasoning -->
-    <div id="reasoning-compact" style="display:none">
-      <div class="section-label">🤖 Reasoning</div>
-      <p class="reasoning-text" id="reasoning-text"></p>
-    </div>
-  </div>
-
-  <!-- Last scan info -->
-  <div class="footer" id="footer">
-    <span id="last-scan-info">Right-click any text or image to scan</span>
-  </div>
+    <div class="hint">Tip: Right-click any selected text or image on the web → <b>Scan with FinGuard</b>.</div>
+  </main>
 
   <script src="popup.js"></script>
 </body>

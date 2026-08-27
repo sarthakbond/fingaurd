@@ -42,7 +42,7 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
     try {
       notifyTab(tab.id, { type: 'FINGUARD_SCANNING', scanType: 'text' });
       const result = await scanText(apiUrl, selectedText);
-      notifyTab(tab.id, { type: 'FINGUARD_RESULT', scanType: 'text', data: result });
+      notifyTab(tab.id, { type: 'FINGUARD_RESULT', scanType: 'text', data: result, result: result });
       // Store last result for popup
       chrome.storage.local.set({ lastResult: result, lastScanType: 'text', lastScanTime: Date.now() });
     } catch (err) {
@@ -59,7 +59,7 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
     try {
       notifyTab(tab.id, { type: 'FINGUARD_SCANNING', scanType: 'image' });
       const result = await scanImage(apiUrl, imageUrl);
-      notifyTab(tab.id, { type: 'FINGUARD_RESULT', scanType: 'image', data: result });
+      notifyTab(tab.id, { type: 'FINGUARD_RESULT', scanType: 'image', data: result, result: result });
       chrome.storage.local.set({ lastResult: result, lastScanType: 'image', lastScanTime: Date.now() });
     } catch (err) {
       notifyTab(tab.id, { type: 'FINGUARD_ERROR', message: err.message });
