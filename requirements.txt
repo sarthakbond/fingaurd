@@ -19,3 +19,4 @@ numpy
 pillow
 opencv-python
 soundfile
+easyocr

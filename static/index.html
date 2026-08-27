@@ -21,6 +21,9 @@
             --success: #10b981;
             --success-dim: rgba(16,185,129,0.15);
             --purple: #a855f7;
+            --purple-dim: rgba(168,85,247,0.15);
+            --cyan: #06b6d4;
+            --cyan-dim: rgba(6,182,212,0.15);
             --text: #f1f5f9;
             --muted: #64748b;
             --radius: 16px;
@@ -42,7 +45,7 @@
         /* ── Header ── */
         header {
             text-align: center;
-            margin-bottom: 2.5rem;
+            margin-bottom: 2rem;
         }
         header h1 {
             font-size: 2.4rem;
@@ -65,27 +68,92 @@
             border-radius: var(--radius);
             padding: 2rem;
             width: 100%;
-            max-width: 780px;
+            max-width: 820px;
         }
 
+        /* ── Tab Navigation ── */
+        .tab-nav {
+            display: flex;
+            gap: 4px;
+            background: var(--surface-2);
+            border-radius: 12px;
+            padding: 4px;
+            margin-bottom: 2rem;
+        }
+        .tab-btn {
+            flex: 1;
+            padding: 10px 12px;
+            border: none;
+            background: transparent;
+            color: var(--muted);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 600;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.25s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        .tab-btn:hover { color: var(--text); background: rgba(255,255,255,0.04); }
+        .tab-btn.active {
+            background: linear-gradient(135deg, rgba(59,130,246,0.2), rgba(139,92,246,0.2));
+            color: var(--text);
+            box-shadow: 0 2px 8px rgba(59,130,246,0.15);
+        }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
         /* ── Upload zone ── */
-        #upload-zone {
+        .upload-zone {
             border: 2px dashed rgba(99,102,241,0.35);
             border-radius: 12px;
-            padding: 3.5rem 2rem;
+            padding: 3rem 2rem;
             text-align: center;
             cursor: pointer;
             transition: all 0.25s;
             background: rgba(99,102,241,0.04);
         }
-        #upload-zone:hover, #upload-zone.dragover {
+        .upload-zone:hover, .upload-zone.dragover {
             border-color: var(--primary);
             background: var(--primary-dim);
         }
-        #upload-zone .icon { font-size: 2.8rem; margin-bottom: 1rem; }
-        #upload-zone h3 { font-weight: 600; font-size: 1.1rem; }
-        #upload-zone p { color: var(--muted); font-size: 0.85rem; margin-top: 0.4rem; }
+        .upload-zone .icon { font-size: 2.5rem; margin-bottom: 0.8rem; }
+        .upload-zone h3 { font-weight: 600; font-size: 1.05rem; }
+        .upload-zone p { color: var(--muted); font-size: 0.82rem; margin-top: 0.3rem; }
         input[type="file"] { display: none; }
+
+        /* ── Text input area ── */
+        .text-input-area {
+            width: 100%;
+            min-height: 180px;
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1rem;
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
+            resize: vertical;
+            outline: none;
+            transition: border-color 0.2s;
+            line-height: 1.6;
+        }
+        .text-input-area:focus { border-color: rgba(59,130,246,0.5); }
+        .text-input-area::placeholder { color: var(--muted); }
+        .char-count { text-align: right; font-size: 0.75rem; color: var(--muted); margin-top: 6px; }
+
+        /* ── Image preview ── */
+        .img-preview {
+            max-width: 100%;
+            max-height: 250px;
+            border-radius: 10px;
+            margin-top: 1rem;
+            border: 1px solid var(--border);
+            display: none;
+        }
 
         /* ── Button ── */
         .btn {
@@ -102,6 +170,7 @@
             cursor: pointer;
             transition: all 0.2s;
             margin-top: 1.5rem;
+            font-family: 'Inter', sans-serif;
         }
         .btn:hover { opacity: 0.9; transform: translateY(-1px); }
         .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
@@ -113,6 +182,25 @@
             padding: 8px 16px;
             margin-top: 1rem;
         }
+
+        /* ── Spinner ── */
+        .spinner-overlay {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            padding: 3rem;
+        }
+        .spinner-overlay.active { display: flex; }
+        .spinner {
+            width: 40px; height: 40px;
+            border: 3px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .spinner-text { color: var(--muted); font-size: 0.9rem; }
 
         /* ── Progress ── */
         #progress-section { display: none; }
@@ -135,7 +223,7 @@
         @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.4;} }
 
         /* ── Results ── */
-        #results-section { display: none; }
+        .results-section { display: none; }
 
         .verdict-banner {
             border-radius: 12px;
@@ -148,7 +236,20 @@
         .verdict-banner.warning { background: var(--warning-dim); border-color: rgba(245,158,11,0.3); }
         .verdict-banner.danger { background: var(--danger-dim); border-color: rgba(244,63,94,0.3); }
         .verdict-banner .label { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; opacity: 0.7; margin-bottom: 4px; }
-        .verdict-banner .title { font-size: 1.8rem; font-weight: 800; }
+        .verdict-banner .title { font-size: 1.6rem; font-weight: 800; }
+
+        /* ── Risk Meter ── */
+        .risk-meter {
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.2rem;
+            margin-bottom: 1.5rem;
+        }
+        .risk-meter .risk-label { font-size: 0.75rem; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+        .risk-meter .risk-val { font-size: 2rem; font-weight: 800; margin-bottom: 6px; }
+        .risk-bar-bg { width: 100%; height: 8px; background: rgba(255,255,255,0.06); border-radius: 4px; overflow: hidden; }
+        .risk-bar-fill { height: 100%; border-radius: 4px; transition: width 1.2s cubic-bezier(0.22,1,0.36,1); background: linear-gradient(90deg, var(--success), var(--warning), var(--danger)); }
 
         /* ── Score row ── */
         .score-row {
@@ -166,6 +267,30 @@
         .bar-bg { width: 100%; height: 6px; background: rgba(255,255,255,0.06); border-radius: 3px; overflow: hidden; margin-top: 8px; }
         .bar-fill { height: 100%; width: 0%; border-radius: 3px; transition: width 1.2s cubic-bezier(0.22,1,0.36,1); }
 
+        /* ── Signal Breakdown ── */
+        .signal-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 1.5rem;
+        }
+        .signal-item {
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 12px;
+        }
+        .signal-item .sig-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+        .signal-item .sig-name { font-size: 0.78rem; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+        .signal-item .sig-score { font-size: 0.85rem; font-weight: 700; }
+        .signal-bar-bg { width: 100%; height: 4px; background: rgba(255,255,255,0.06); border-radius: 2px; overflow: hidden; }
+        .signal-bar-fill { height: 100%; border-radius: 2px; transition: width 1s ease; }
+
         /* ── Sections ── */
         .section-title {
             font-size: 0.8rem; font-weight: 600; text-transform: uppercase;
@@ -173,7 +298,7 @@
         }
 
         /* ── Transcript / Subtitle panel ── */
-        #transcript-panel {
+        .transcript-panel {
             background: var(--surface-2);
             border: 1px solid var(--border);
             border-radius: 12px;
@@ -195,24 +320,31 @@
             margin-right: 4px;
             font-variant-numeric: tabular-nums;
         }
-        /* Flag types */
-        .segment.flag-return {
-            background: rgba(244,63,94,0.25);
-            border-bottom: 2px solid var(--danger);
-        }
-        .segment.flag-urgency {
-            background: rgba(245,158,11,0.2);
-            border-bottom: 2px solid var(--warning);
-        }
+        .segment.flag-return { background: rgba(244,63,94,0.25); border-bottom: 2px solid var(--danger); }
+        .segment.flag-urgency { background: rgba(245,158,11,0.2); border-bottom: 2px solid var(--warning); }
+        .segment.flag-social { background: rgba(168,85,247,0.2); border-bottom: 2px solid var(--purple); }
+        .segment.flag-paywall { background: rgba(6,182,212,0.2); border-bottom: 2px solid var(--cyan); }
 
-        /* ── Legend ── */
         .legend {
-            display: flex; gap: 16px; flex-wrap: wrap;
-            margin-top: 12px; font-size: 0.8rem; color: var(--muted);
+            display: flex; gap: 14px; flex-wrap: wrap;
+            margin-top: 12px; font-size: 0.78rem; color: var(--muted);
         }
         .legend-dot {
             display: inline-block; width: 10px; height: 10px;
-            border-radius: 2px; margin-right: 5px; vertical-align: middle;
+            border-radius: 2px; margin-right: 4px; vertical-align: middle;
+        }
+
+        /* ── Extracted text (OCR) ── */
+        .ocr-text-box {
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.2rem;
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            color: var(--text);
+            white-space: pre-wrap;
         }
 
         /* ── Flags list ── */
@@ -225,11 +357,19 @@
         }
         .flag-item.type-return { border-color: var(--danger); }
         .flag-item.type-urgency { border-color: var(--warning); }
+        .flag-item.type-social { border-color: var(--purple); }
+        .flag-item.type-paywall { border-color: var(--cyan); }
+        .flag-item.type-implied { border-color: #f97316; }
+        .flag-item.type-credential { border-color: #ef4444; }
         .flag-item .flag-icon { font-size: 1rem; flex-shrink: 0; margin-top: 1px; }
         .flag-item .flag-quote { color: var(--text); font-style: italic; }
         .flag-item .flag-type { font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px; }
         .flag-item.type-return .flag-type { color: var(--danger); }
         .flag-item.type-urgency .flag-type { color: var(--warning); }
+        .flag-item.type-social .flag-type { color: var(--purple); }
+        .flag-item.type-paywall .flag-type { color: var(--cyan); }
+        .flag-item.type-implied .flag-type { color: #f97316; }
+        .flag-item.type-credential .flag-type { color: #ef4444; }
 
         /* ── Registry ── */
         .registry-card {
@@ -253,6 +393,12 @@
             font-size: 0.875rem; color: var(--muted); line-height: 1.6;
             margin-bottom: 1.5rem;
         }
+
+        /* ── Responsive ── */
+        @media (max-width: 640px) {
+            .score-row, .signal-grid { grid-template-columns: 1fr; }
+            .tab-btn { font-size: 0.75rem; padding: 8px 6px; }
+        }
     </style>
 </head>
 <body>
@@ -264,107 +410,254 @@
 
 <div class="card" id="main-card">
 
-    <!-- ── Upload ── -->
-    <div id="upload-section">
-        <div id="upload-zone" onclick="document.getElementById('file-input').click()">
-            <div class="icon">🎬</div>
-            <h3 id="upload-label">Drop a video or click to upload</h3>
-            <p>Supports .mp4 · .mov · .avi · .mkv</p>
-            <input type="file" id="file-input" accept=".mp4,.avi,.mov,.mkv" onchange="handleFile(this.files)">
-        </div>
-        <div style="text-align:center">
-            <button class="btn" id="scan-btn" style="display:none" onclick="startScan()">🔍 Analyse Video</button>
-        </div>
+    <!-- ── Tab Navigation ── -->
+    <div class="tab-nav" id="tab-nav">
+        <button class="tab-btn active" data-tab="video" onclick="switchTab('video')">🎬 Video</button>
+        <button class="tab-btn" data-tab="text" onclick="switchTab('text')">📝 Text</button>
+        <button class="tab-btn" data-tab="audio" onclick="switchTab('audio')">🎙 Audio</button>
+        <button class="tab-btn" data-tab="image" onclick="switchTab('image')">🖼 Image</button>
     </div>
 
-    <!-- ── Progress ── -->
-    <div id="progress-section">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
-            <p id="progress-status-text" style="color:var(--text); font-weight:600; font-size:1rem;">🚀 Initializing pipeline…</p>
-            <span id="elapsed-timer" style="font-size:0.85rem; color:var(--muted); font-family:monospace; background:var(--surface-2); padding:4px 8px; border-radius:6px; border:1px solid var(--border);">00:00</span>
+    <!-- ══════════════ VIDEO TAB ══════════════ -->
+    <div class="tab-content active" id="tab-video">
+        <div id="video-upload-section">
+            <div class="upload-zone" id="video-upload-zone" onclick="document.getElementById('video-file-input').click()">
+                <div class="icon">🎬</div>
+                <h3 id="video-upload-label">Drop a video or click to upload</h3>
+                <p>Supports .mp4 · .mov · .avi · .mkv</p>
+                <input type="file" id="video-file-input" accept=".mp4,.avi,.mov,.mkv" onchange="handleVideoFile(this.files)">
+            </div>
+            <div style="text-align:center">
+                <button class="btn" id="video-scan-btn" style="display:none" onclick="startVideoScan()">🔍 Analyse Video</button>
+            </div>
         </div>
-        <div class="stage-list">
-            <div class="stage-item active" id="s-stage1_ingest"><div class="stage-dot"></div><span>Stage 1 — Preprocessing (face extraction + audio)</span></div>
-            <div class="stage-item" id="s-stage2_vision"><div class="stage-dot"></div><span>Stage 2 — Vision deepfake detection</span></div>
-            <div class="stage-item" id="s-stage3_audio"><div class="stage-dot"></div><span>Stage 3 — Audio deepfake detection</span></div>
-            <div class="stage-item" id="s-stage4_transcription"><div class="stage-dot"></div><span>Stage 4 — Transcription (Whisper)</span></div>
-            <div class="stage-item" id="s-stage5_llm"><div class="stage-dot"></div><span>Stage 5 — SEBI compliance reasoning (LLM)</span></div>
-            <div class="stage-item" id="s-stage6_registry"><div class="stage-dot"></div><span>Stage 6 — SEBI registry cross-check</span></div>
-            <div class="stage-item" id="s-stage7_aggregation"><div class="stage-dot"></div><span>Stage 7 — Final verdict</span></div>
+
+        <!-- Progress -->
+        <div id="progress-section">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+                <p id="progress-status-text" style="color:var(--text); font-weight:600; font-size:1rem;">🚀 Initializing pipeline…</p>
+                <span id="elapsed-timer" style="font-size:0.85rem; color:var(--muted); font-family:monospace; background:var(--surface-2); padding:4px 8px; border-radius:6px; border:1px solid var(--border);">00:00</span>
+            </div>
+            <div class="stage-list">
+                <div class="stage-item active" id="s-stage1_ingest"><div class="stage-dot"></div><span>Stage 1 — Preprocessing (face extraction + audio)</span></div>
+                <div class="stage-item" id="s-stage2_vision"><div class="stage-dot"></div><span>Stage 2 — Vision deepfake detection</span></div>
+                <div class="stage-item" id="s-stage3_audio"><div class="stage-dot"></div><span>Stage 3 — Audio deepfake detection</span></div>
+                <div class="stage-item" id="s-stage4_transcription"><div class="stage-dot"></div><span>Stage 4 — Transcription (Whisper)</span></div>
+                <div class="stage-item" id="s-stage5_llm"><div class="stage-dot"></div><span>Stage 5 — SEBI compliance reasoning (LLM)</span></div>
+                <div class="stage-item" id="s-stage6_registry"><div class="stage-dot"></div><span>Stage 6 — SEBI registry cross-check</span></div>
+                <div class="stage-item" id="s-stage7_aggregation"><div class="stage-dot"></div><span>Stage 7 — Final verdict</span></div>
+            </div>
         </div>
+
+        <!-- Video Results -->
+        <div class="results-section" id="video-results"></div>
     </div>
 
-    <!-- ── Results ── -->
-    <div id="results-section">
-
-        <!-- Verdict banner -->
-        <div class="verdict-banner" id="verdict-banner">
-            <div class="label">Final Verdict</div>
-            <div class="title" id="verdict-title">—</div>
-        </div>
-
-        <!-- Score row -->
-        <div class="score-row">
-            <div class="score-card">
-                <div class="s-label">👁 Vision Score</div>
-                <div class="s-val" id="r-vision">—</div>
-                <div class="bar-bg"><div class="bar-fill" id="bar-vision" style="background:var(--danger)"></div></div>
-            </div>
-            <div class="score-card">
-                <div class="s-label">🔊 Audio Score</div>
-                <div class="s-val" id="r-audio">—</div>
-                <div class="bar-bg"><div class="bar-fill" id="bar-audio" style="background:var(--purple)"></div></div>
+    <!-- ══════════════ TEXT TAB ══════════════ -->
+    <div class="tab-content" id="tab-text">
+        <div id="text-input-section">
+            <textarea class="text-input-area" id="text-input" placeholder="Paste any suspicious text here...&#10;&#10;Example: &quot;I am SEBI registered advisor INA000012345. I guarantee 40% monthly returns. Join my premium WhatsApp group now, only 50 seats left!&quot;"></textarea>
+            <div class="char-count"><span id="text-char-count">0</span> characters</div>
+            <div style="text-align:center">
+                <button class="btn" id="text-scan-btn" onclick="startTextScan()">🔍 Analyse Text</button>
             </div>
         </div>
+        <div class="spinner-overlay" id="text-spinner">
+            <div class="spinner"></div>
+            <span class="spinner-text">Running multi-signal analysis...</span>
+        </div>
+        <div class="results-section" id="text-results"></div>
+    </div>
 
-        <!-- Transcript with highlights -->
-        <div id="transcript-panel" style="display:none">
-            <div class="section-title">📝 Transcript — SEBI Flags Highlighted</div>
-            <div id="transcript-body" style="line-height:2"></div>
-            <div class="legend">
-                <span><span class="legend-dot" style="background:rgba(244,63,94,0.5);border-bottom:2px solid var(--danger)"></span>Guaranteed return claim</span>
-                <span><span class="legend-dot" style="background:rgba(245,158,11,0.35);border-bottom:2px solid var(--warning)"></span>Urgency / pressure tactic</span>
+    <!-- ══════════════ AUDIO TAB ══════════════ -->
+    <div class="tab-content" id="tab-audio">
+        <div id="audio-upload-section">
+            <div class="upload-zone" id="audio-upload-zone" onclick="document.getElementById('audio-file-input').click()">
+                <div class="icon">🎙</div>
+                <h3 id="audio-upload-label">Drop an audio file or click to upload</h3>
+                <p>Supports .mp3 · .wav · .ogg · .m4a · .flac · .aac</p>
+                <input type="file" id="audio-file-input" accept=".mp3,.wav,.ogg,.m4a,.flac,.aac" onchange="handleAudioFile(this.files)">
+            </div>
+            <div style="text-align:center">
+                <button class="btn" id="audio-scan-btn" style="display:none" onclick="startAudioScan()">🔍 Analyse Audio</button>
             </div>
         </div>
-
-        <!-- SEBI flags list -->
-        <div id="flags-section" style="display:none">
-            <div class="section-title">🚩 Flagged Statements</div>
-            <div class="flag-list" id="flags-list"></div>
+        <div class="spinner-overlay" id="audio-spinner">
+            <div class="spinner"></div>
+            <span class="spinner-text">Processing audio through deepfake + SEBI pipeline...</span>
         </div>
+        <div class="results-section" id="audio-results"></div>
+    </div>
 
-        <!-- Registry -->
-        <div id="registry-section" style="display:none">
-            <div class="section-title">🏛 SEBI Registry Check</div>
-            <div class="registry-card">
-                <div>
-                    <div style="font-weight:600" id="registry-name">—</div>
-                    <div style="font-size:0.8rem;color:var(--muted);margin-top:2px" id="registry-reg">—</div>
-                </div>
-                <div class="registry-pill" id="registry-pill">—</div>
+    <!-- ══════════════ IMAGE TAB ══════════════ -->
+    <div class="tab-content" id="tab-image">
+        <div id="image-upload-section">
+            <div class="upload-zone" id="image-upload-zone" onclick="document.getElementById('image-file-input').click()">
+                <div class="icon">🖼</div>
+                <h3 id="image-upload-label">Drop an image or click to upload</h3>
+                <p>Supports .jpg · .png · .webp · Screenshots of scam posts</p>
+                <input type="file" id="image-file-input" accept=".jpg,.jpeg,.png,.webp,.bmp" onchange="handleImageFile(this.files)">
+            </div>
+            <img class="img-preview" id="image-preview">
+            <div style="text-align:center">
+                <button class="btn" id="image-scan-btn" style="display:none" onclick="startImageScan()">🔍 Analyse Image</button>
             </div>
         </div>
-
-        <!-- LLM reasoning -->
-        <div id="reasoning-section" style="display:none">
-            <div class="section-title">🤖 LLM Reasoning</div>
-            <div class="reasoning-box" id="reasoning-text">—</div>
+        <div class="spinner-overlay" id="image-spinner">
+            <div class="spinner"></div>
+            <span class="spinner-text">Running OCR + deepfake + SEBI analysis...</span>
         </div>
-
-        <div style="text-align:center">
-            <button class="btn btn-ghost" onclick="resetApp()">← Scan another video</button>
-        </div>
+        <div class="results-section" id="image-results"></div>
     </div>
 
 </div>
 
 <script>
-// ── State ──────────────────────────────────────────────────────────
-let selectedFile = null;
+// ── Tab switching ──────────────────────────────────────────────────
+function switchTab(tabName) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    document.querySelector(`.tab-btn[data-tab="${tabName}"]`).classList.add('active');
+    document.getElementById(`tab-${tabName}`).classList.add('active');
+}
+
+// ── Helpers ────────────────────────────────────────────────────────
+function formatTime(secs) {
+    const m = Math.floor(secs / 60).toString().padStart(2, '0');
+    const s = Math.floor(secs % 60).toString().padStart(2, '0');
+    return `${m}:${s}`;
+}
+
+function getSignalColor(score) {
+    if (score >= 0.7) return 'var(--danger)';
+    if (score >= 0.4) return 'var(--warning)';
+    return 'var(--success)';
+}
+
+function getVerdictClass(verdict) {
+    if (verdict.includes('Critical')) return 'danger';
+    if (verdict.includes('Warning')) return 'warning';
+    return 'safe';
+}
+
+// ── Build common results HTML ──────────────────────────────────────
+function buildVerdictBanner(verdict) {
+    const cls = getVerdictClass(verdict);
+    return `<div class="verdict-banner ${cls}">
+        <div class="label">Final Verdict</div>
+        <div class="title">${verdict}</div>
+    </div>`;
+}
+
+function buildRiskMeter(score) {
+    const pct = (score * 100).toFixed(1);
+    return `<div class="risk-meter">
+        <div class="risk-label">🎯 Composite Risk Score</div>
+        <div class="risk-val" style="color:${getSignalColor(score)}">${pct}%</div>
+        <div class="risk-bar-bg"><div class="risk-bar-fill" style="width:0%" id="risk-bar-animated"></div></div>
+    </div>`;
+}
+
+function buildSignalGrid(signalScores) {
+    if (!signalScores || Object.keys(signalScores).length === 0) return '';
+
+    const labels = {
+        'explicit_returns': '💰 Explicit Returns',
+        'implied_returns': '📈 Implied Returns',
+        'urgency_scarcity': '⏰ Urgency / Scarcity',
+        'social_proof': '👥 Social Proof',
+        'paywall_push': '🔒 Paywall Push',
+        'credential_misrep': '🎭 Credential Misrep.'
+    };
+
+    let html = '<div class="section-title">📊 Signal Breakdown</div><div class="signal-grid">';
+    for (const [key, label] of Object.entries(labels)) {
+        const score = signalScores[key] || 0;
+        const pct = (score * 100).toFixed(0);
+        const color = getSignalColor(score);
+        html += `<div class="signal-item">
+            <div class="sig-header">
+                <span class="sig-name">${label}</span>
+                <span class="sig-score" style="color:${color}">${pct}%</span>
+            </div>
+            <div class="signal-bar-bg"><div class="signal-bar-fill" style="width:${pct}%; background:${color}"></div></div>
+        </div>`;
+    }
+    html += '</div>';
+    return html;
+}
+
+function buildFlagsList(sebi) {
+    const allFlags = [
+        ...(sebi.specific_return_promises || []).map(q => ({ type: 'return', quote: q, label: 'Guaranteed Return Claim', icon: '💰' })),
+        ...(sebi.implied_returns || []).map(q => ({ type: 'implied', quote: q, label: 'Implied Return', icon: '📈' })),
+        ...(sebi.urgency_scarcity_language || []).map(q => ({ type: 'urgency', quote: q, label: 'Urgency / Scarcity', icon: '⏰' })),
+        ...(sebi.social_proof_inflation || []).map(q => ({ type: 'social', quote: q, label: 'Social Proof Inflation', icon: '👥' })),
+        ...(sebi.paywall_push || []).map(q => ({ type: 'paywall', quote: q, label: 'Paywall Push', icon: '🔒' })),
+        ...(sebi.credential_misrepresentation || []).map(q => ({ type: 'credential', quote: q, label: 'Credential Misrep.', icon: '🎭' })),
+    ];
+
+    if (!allFlags.length) return '';
+
+    let html = '<div class="section-title">🚩 Flagged Statements</div><div class="flag-list">';
+    allFlags.forEach(f => {
+        html += `<div class="flag-item type-${f.type}">
+            <span class="flag-icon">${f.icon}</span>
+            <div>
+                <div class="flag-quote">"${f.quote}"</div>
+                <div class="flag-type">${f.label}</div>
+            </div>
+        </div>`;
+    });
+    html += '</div>';
+    return html;
+}
+
+function buildRegistryCard(sebi, registry) {
+    if (!registry || !registry.verdict || registry.verdict === 'not claimed') return '';
+
+    const name = sebi.claimed_advisor_name || 'Unknown entity';
+    const regNo = sebi.claimed_registration_number || 'No registration number';
+    const pilMap = {
+        'verified': ['pill-verified', '✅ Verified'],
+        'not found': ['pill-notfound', '❌ Not Found'],
+        'name-number mismatch': ['pill-mismatch', '⚠️ Mismatch'],
+        'malformed number': ['pill-mismatch', '⚠️ Malformed'],
+    };
+    const [cls, label] = pilMap[registry.verdict] || ['pill-notclaimed', registry.verdict];
+
+    return `<div class="section-title">🏛 SEBI Registry Check</div>
+    <div class="registry-card">
+        <div>
+            <div style="font-weight:600">${name}</div>
+            <div style="font-size:0.8rem;color:var(--muted);margin-top:2px">${regNo}</div>
+        </div>
+        <div class="registry-pill ${cls}">${label}</div>
+    </div>`;
+}
+
+function buildReasoningBox(sebi) {
+    if (!sebi.reasoning) return '';
+    return `<div class="section-title">🤖 LLM Reasoning</div>
+    <div class="reasoning-box">${sebi.reasoning}</div>`;
+}
+
+function animateRiskBar(score) {
+    setTimeout(() => {
+        const bar = document.getElementById('risk-bar-animated');
+        if (bar) bar.style.width = (score * 100).toFixed(1) + '%';
+    }, 200);
+}
+
+// ════════════════════════════════════════════════════════════════════
+// VIDEO SCAN
+// ════════════════════════════════════════════════════════════════════
+let videoFile = null;
 let pollInterval = null;
 let timerInterval = null;
 let startTime = null;
 
+const STAGE_ORDER = ['stage1_ingest','stage2_vision','stage3_audio','stage4_transcription','stage5_llm','stage6_registry','stage7_aggregation'];
 const STAGE_LABELS = {
     'stage1_ingest': 'Stage 1 — Preprocessing face & audio...',
     'stage2_vision': 'Stage 2 — Running Vision Deepfake Model...',
@@ -375,18 +668,18 @@ const STAGE_LABELS = {
     'stage7_aggregation': 'Stage 7 — Synthesizing Final Report...'
 };
 
-// ── Upload ─────────────────────────────────────────────────────────
-const dropZone = document.getElementById('upload-zone');
-['dragenter','dragover','dragleave','drop'].forEach(e => dropZone.addEventListener(e, ev => ev.preventDefault()));
-['dragenter','dragover'].forEach(e => dropZone.addEventListener(e, () => dropZone.classList.add('dragover')));
-['dragleave','drop'].forEach(e => dropZone.addEventListener(e, () => dropZone.classList.remove('dragover')));
-dropZone.addEventListener('drop', e => handleFile(e.dataTransfer.files));
+// Drag-drop for video
+const videoDropZone = document.getElementById('video-upload-zone');
+['dragenter','dragover','dragleave','drop'].forEach(e => videoDropZone.addEventListener(e, ev => ev.preventDefault()));
+['dragenter','dragover'].forEach(e => videoDropZone.addEventListener(e, () => videoDropZone.classList.add('dragover')));
+['dragleave','drop'].forEach(e => videoDropZone.addEventListener(e, () => videoDropZone.classList.remove('dragover')));
+videoDropZone.addEventListener('drop', e => handleVideoFile(e.dataTransfer.files));
 
-function handleFile(files) {
+function handleVideoFile(files) {
     if (!files.length) return;
-    selectedFile = files[0];
-    document.getElementById('upload-label').textContent = selectedFile.name;
-    document.getElementById('scan-btn').style.display = 'inline-flex';
+    videoFile = files[0];
+    document.getElementById('video-upload-label').textContent = videoFile.name;
+    document.getElementById('video-scan-btn').style.display = 'inline-flex';
 }
 
 function updateTimer() {
@@ -398,20 +691,21 @@ function updateTimer() {
     if (el) el.textContent = `${m}:${s}`;
 }
 
-// ── Start scan ─────────────────────────────────────────────────────
-async function startScan() {
-    if (!selectedFile) return;
+async function startVideoScan() {
+    if (!videoFile) return;
 
-    document.getElementById('upload-section').style.display = 'none';
+    document.getElementById('video-upload-section').style.display = 'none';
     document.getElementById('progress-section').style.display = 'block';
-    document.getElementById('results-section').style.display = 'none';
+    document.getElementById('video-results').style.display = 'none';
+    document.getElementById('tab-nav').style.pointerEvents = 'none';
+    document.getElementById('tab-nav').style.opacity = '0.5';
 
     document.getElementById('progress-status-text').textContent = '📤 Uploading video to local backend...';
     startTime = Date.now();
     timerInterval = setInterval(updateTimer, 1000);
 
     const fd = new FormData();
-    fd.append('file', selectedFile);
+    fd.append('file', videoFile);
 
     try {
         const res = await fetch('/api/jobs', { method: 'POST', body: fd });
@@ -420,19 +714,13 @@ async function startScan() {
             throw new Error(errData.detail || 'Upload failed');
         }
         const data = await res.json();
-        const job_id = data.job_id;
-
-        document.getElementById('progress-status-text').textContent = '⚙️ Pipeline processing started...';
-        pollInterval = setInterval(() => pollJob(job_id), 1500);
+        pollInterval = setInterval(() => pollJob(data.job_id), 1500);
     } catch (err) {
         clearInterval(timerInterval);
         alert('Failed to start scan: ' + err.message);
-        resetApp();
+        resetVideoTab();
     }
 }
-
-// ── Polling ────────────────────────────────────────────────────────
-const STAGE_ORDER = ['stage1_ingest','stage2_vision','stage3_audio','stage4_transcription','stage5_llm','stage6_registry','stage7_aggregation'];
 
 async function pollJob(job_id) {
     try {
@@ -440,26 +728,18 @@ async function pollJob(job_id) {
         if (!res.ok) return;
         const data = await res.json();
 
-        // Update status text
         const currentStage = data.stage || 'stage1_ingest';
         const label = STAGE_LABELS[currentStage] || '⚙️ Processing video...';
         const statusEl = document.getElementById('progress-status-text');
-        if (statusEl && data.status === 'processing') {
-            statusEl.textContent = label;
-        }
+        if (statusEl && data.status === 'processing') statusEl.textContent = label;
 
-        // Update stage indicators
         const curIdx = STAGE_ORDER.indexOf(currentStage);
         STAGE_ORDER.forEach((s, idx) => {
             const el = document.getElementById(`s-${s}`);
             if (!el) return;
-            if (data.status === 'completed' || idx < curIdx) {
-                el.className = 'stage-item done';
-            } else if (idx === curIdx) {
-                el.className = 'stage-item active';
-            } else {
-                el.className = 'stage-item';
-            }
+            if (data.status === 'completed' || idx < curIdx) el.className = 'stage-item done';
+            else if (idx === curIdx) el.className = 'stage-item active';
+            else el.className = 'stage-item';
         });
 
         if (data.status === 'completed') {
@@ -469,162 +749,349 @@ async function pollJob(job_id) {
                 const el = document.getElementById(`s-${s}`);
                 if (el) el.className = 'stage-item done';
             });
-            setTimeout(() => renderResults(data.result), 300);
+            setTimeout(() => renderVideoResults(data.result), 300);
         } else if (data.status === 'failed') {
             clearInterval(pollInterval);
             clearInterval(timerInterval);
             alert('Pipeline failed: ' + (data.error || 'unknown error'));
-            resetApp();
+            resetVideoTab();
         }
     } catch (err) {
         console.warn('Poll error:', err);
     }
 }
 
-// ── Render results ─────────────────────────────────────────────────
-function renderResults(r) {
+function renderVideoResults(r) {
     document.getElementById('progress-section').style.display = 'none';
-    document.getElementById('results-section').style.display = 'block';
+    document.getElementById('tab-nav').style.pointerEvents = '';
+    document.getElementById('tab-nav').style.opacity = '';
 
-    // Verdict banner
-    const banner = document.getElementById('verdict-banner');
-    const title = document.getElementById('verdict-title');
-    title.textContent = r.verdict;
-    if (r.verdict.includes('Critical')) { banner.className = 'verdict-banner danger'; }
-    else if (r.verdict.includes('Warning')) { banner.className = 'verdict-banner warning'; }
-    else { banner.className = 'verdict-banner safe'; }
+    const sebi = r.sebi_analysis || {};
+    const container = document.getElementById('video-results');
 
-    // Scores
+    let html = buildVerdictBanner(r.verdict);
+    html += buildRiskMeter(sebi.composite_risk_score || 0);
+
+    // Score row
     const vPct = ((r.vision_score || 0) * 100).toFixed(1);
     const aPct = ((r.audio_score || 0) * 100).toFixed(1);
-    document.getElementById('r-vision').textContent = vPct + '%';
-    document.getElementById('r-audio').textContent = aPct + '%';
-    setTimeout(() => {
-        document.getElementById('bar-vision').style.width = vPct + '%';
-        document.getElementById('bar-audio').style.width = aPct + '%';
-    }, 100);
+    html += `<div class="score-row">
+        <div class="score-card">
+            <div class="s-label">👁 Vision Score</div>
+            <div class="s-val">${vPct}%</div>
+            <div class="bar-bg"><div class="bar-fill" style="width:${vPct}%;background:var(--danger)"></div></div>
+        </div>
+        <div class="score-card">
+            <div class="s-label">🔊 Audio Score</div>
+            <div class="s-val">${aPct}%</div>
+            <div class="bar-bg"><div class="bar-fill" style="width:${aPct}%;background:var(--purple)"></div></div>
+        </div>
+    </div>`;
 
-    // ── Transcript with highlights ──────────────────────────────────
-    const sebi = r.sebi_analysis || {};
-    const returnQuotes = (sebi.specific_return_promises || []).map(q => q.toLowerCase());
-    const urgencyQuotes = (sebi.urgency_scarcity_language || []).map(q => q.toLowerCase());
-    const segments = r.transcript
-        ? (r.segments && r.segments.length ? r.segments : [{ start: 0, end: 0, text: r.transcript }])
-        : [];
+    html += buildSignalGrid(sebi.signal_scores);
 
+    // Transcript
+    const segments = r.transcript ? (r.segments && r.segments.length ? r.segments : [{ start: 0, end: 0, text: r.transcript }]) : [];
     if (segments.length) {
-        document.getElementById('transcript-panel').style.display = 'block';
-        const body = document.getElementById('transcript-body');
-        body.innerHTML = '';
+        const returnQuotes = (sebi.specific_return_promises || []).map(q => q.toLowerCase());
+        const urgencyQuotes = (sebi.urgency_scarcity_language || []).map(q => q.toLowerCase());
+        const socialQuotes = (sebi.social_proof_inflation || []).map(q => q.toLowerCase());
+        const paywallQuotes = (sebi.paywall_push || []).map(q => q.toLowerCase());
 
+        html += '<div class="transcript-panel"><div class="section-title">📝 Transcript — SEBI Flags Highlighted</div><div style="line-height:2">';
         segments.forEach(seg => {
-            const span = document.createElement('span');
-            span.className = 'segment';
-
-            // Check if this segment matches a flagged quote
             const segLower = seg.text.toLowerCase();
-            const isReturn  = returnQuotes.some(q => segLower.includes(q) || q.includes(segLower));
-            const isUrgency = urgencyQuotes.some(q => segLower.includes(q) || q.includes(segLower));
+            let flagClass = '';
+            if (returnQuotes.some(q => segLower.includes(q) || q.includes(segLower))) flagClass = 'flag-return';
+            else if (urgencyQuotes.some(q => segLower.includes(q) || q.includes(segLower))) flagClass = 'flag-urgency';
+            else if (socialQuotes.some(q => segLower.includes(q) || q.includes(segLower))) flagClass = 'flag-social';
+            else if (paywallQuotes.some(q => segLower.includes(q) || q.includes(segLower))) flagClass = 'flag-paywall';
 
-            if (isReturn)       span.classList.add('flag-return');
-            else if (isUrgency) span.classList.add('flag-urgency');
-
-            const tsEl = document.createElement('span');
-            tsEl.className = 'ts';
-            tsEl.textContent = formatTime(seg.start) + ' ';
-
-            span.appendChild(tsEl);
-            span.appendChild(document.createTextNode(seg.text + ' '));
-
-            // Tooltip
-            if (isReturn)  span.title = '⚠️ Guaranteed return claim — SEBI violation';
-            if (isUrgency) span.title = '⚠️ Urgency / pressure tactic — SEBI violation';
-
-            body.appendChild(span);
+            html += `<span class="segment ${flagClass}"><span class="ts">${formatTime(seg.start)}</span>${seg.text} </span>`;
         });
+        html += '</div>';
+        html += `<div class="legend">
+            <span><span class="legend-dot" style="background:rgba(244,63,94,0.5)"></span>Return claim</span>
+            <span><span class="legend-dot" style="background:rgba(245,158,11,0.35)"></span>Urgency</span>
+            <span><span class="legend-dot" style="background:rgba(168,85,247,0.35)"></span>Social proof</span>
+            <span><span class="legend-dot" style="background:rgba(6,182,212,0.35)"></span>Paywall</span>
+        </div></div>`;
     }
 
-    // ── Flagged statements list ─────────────────────────────────────
-    const allFlags = [
-        ...(sebi.specific_return_promises || []).map(q => ({ type: 'return', quote: q })),
-        ...(sebi.urgency_scarcity_language || []).map(q => ({ type: 'urgency', quote: q }))
-    ];
+    html += buildFlagsList(sebi);
+    html += buildRegistryCard(sebi, r.registry_check);
+    html += buildReasoningBox(sebi);
+    html += '<div style="text-align:center"><button class="btn btn-ghost" onclick="resetVideoTab()">← Scan another video</button></div>';
 
-    if (allFlags.length) {
-        document.getElementById('flags-section').style.display = 'block';
-        const list = document.getElementById('flags-list');
-        list.innerHTML = '';
-        allFlags.forEach(f => {
-            const item = document.createElement('div');
-            item.className = `flag-item type-${f.type}`;
-            item.innerHTML = `
-                <span class="flag-icon">${f.type === 'return' ? '💰' : '⏰'}</span>
-                <div>
-                    <div class="flag-quote">"${f.quote}"</div>
-                    <div class="flag-type">${f.type === 'return' ? 'Guaranteed Return Claim' : 'Urgency / Scarcity Pressure'}</div>
-                </div>`;
-            list.appendChild(item);
-        });
-    }
-
-    // ── Registry ───────────────────────────────────────────────────
-    const reg = r.registry_check || {};
-    if (reg.verdict && reg.verdict !== 'not claimed') {
-        document.getElementById('registry-section').style.display = 'block';
-        const name = sebi.claimed_advisor_name || 'Unknown entity';
-        const regNo = sebi.claimed_registration_number || 'No registration number';
-        document.getElementById('registry-name').textContent = name;
-        document.getElementById('registry-reg').textContent = regNo;
-
-        const pill = document.getElementById('registry-pill');
-        const pilMap = {
-            'verified': ['pill-verified','✅ Verified'],
-            'not found': ['pill-notfound','❌ Not Found'],
-            'name-number mismatch': ['pill-mismatch','⚠️ Mismatch'],
-            'malformed number': ['pill-mismatch','⚠️ Malformed'],
-        };
-        const [cls, label] = pilMap[reg.verdict] || ['pill-notclaimed', reg.verdict];
-        pill.className = `registry-pill ${cls}`;
-        pill.textContent = label;
-    }
-
-    // ── LLM Reasoning ──────────────────────────────────────────────
-    if (sebi.reasoning) {
-        document.getElementById('reasoning-section').style.display = 'block';
-        document.getElementById('reasoning-text').textContent = sebi.reasoning;
-    }
+    container.innerHTML = html;
+    container.style.display = 'block';
+    animateRiskBar(sebi.composite_risk_score || 0);
 }
 
-// ── Helpers ────────────────────────────────────────────────────────
-function formatTime(secs) {
-    const m = Math.floor(secs / 60).toString().padStart(2, '0');
-    const s = Math.floor(secs % 60).toString().padStart(2, '0');
-    return `${m}:${s}`;
-}
-
-function resetApp() {
-    selectedFile = null;
+function resetVideoTab() {
+    videoFile = null;
     if (pollInterval) clearInterval(pollInterval);
     if (timerInterval) clearInterval(timerInterval);
     startTime = null;
     const timerEl = document.getElementById('elapsed-timer');
     if (timerEl) timerEl.textContent = '00:00';
-    document.getElementById('upload-label').textContent = 'Drop a video or click to upload';
-    document.getElementById('file-input').value = '';
-    document.getElementById('scan-btn').style.display = 'none';
-    document.getElementById('upload-section').style.display = 'block';
+    document.getElementById('video-upload-label').textContent = 'Drop a video or click to upload';
+    document.getElementById('video-file-input').value = '';
+    document.getElementById('video-scan-btn').style.display = 'none';
+    document.getElementById('video-upload-section').style.display = 'block';
     document.getElementById('progress-section').style.display = 'none';
-    document.getElementById('results-section').style.display = 'none';
-    document.getElementById('transcript-panel').style.display = 'none';
-    document.getElementById('flags-section').style.display = 'none';
-    document.getElementById('registry-section').style.display = 'none';
-    document.getElementById('reasoning-section').style.display = 'none';
-    document.getElementById('transcript-body').innerHTML = '';
-    document.getElementById('flags-list').innerHTML = '';
+    document.getElementById('video-results').style.display = 'none';
+    document.getElementById('video-results').innerHTML = '';
+    document.getElementById('tab-nav').style.pointerEvents = '';
+    document.getElementById('tab-nav').style.opacity = '';
     STAGE_ORDER.forEach(s => {
         const el = document.getElementById(`s-${s}`);
         if (el) el.className = 'stage-item';
     });
+}
+
+// ════════════════════════════════════════════════════════════════════
+// TEXT SCAN
+// ════════════════════════════════════════════════════════════════════
+const textInput = document.getElementById('text-input');
+textInput.addEventListener('input', () => {
+    document.getElementById('text-char-count').textContent = textInput.value.length;
+});
+
+async function startTextScan() {
+    const text = textInput.value.trim();
+    if (!text || text.length < 5) { alert('Please enter some text to analyze.'); return; }
+
+    document.getElementById('text-input-section').style.display = 'none';
+    document.getElementById('text-spinner').classList.add('active');
+    document.getElementById('text-results').style.display = 'none';
+
+    try {
+        const res = await fetch('/api/scan/text', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ text })
+        });
+        if (!res.ok) throw new Error((await res.json()).detail || 'Scan failed');
+        const data = await res.json();
+        renderTextResults(data);
+    } catch (err) {
+        alert('Text scan failed: ' + err.message);
+        resetTextTab();
+    }
+}
+
+function renderTextResults(r) {
+    document.getElementById('text-spinner').classList.remove('active');
+    const sebi = r.sebi_analysis || {};
+    const container = document.getElementById('text-results');
+
+    let html = buildVerdictBanner(r.verdict);
+    html += buildRiskMeter(r.composite_risk_score || 0);
+    html += buildSignalGrid(sebi.signal_scores);
+    html += buildFlagsList(sebi);
+    html += buildRegistryCard(sebi, r.registry_check);
+    html += buildReasoningBox(sebi);
+    html += '<div style="text-align:center"><button class="btn btn-ghost" onclick="resetTextTab()">← Scan more text</button></div>';
+
+    container.innerHTML = html;
+    container.style.display = 'block';
+    animateRiskBar(r.composite_risk_score || 0);
+}
+
+function resetTextTab() {
+    document.getElementById('text-input-section').style.display = 'block';
+    document.getElementById('text-spinner').classList.remove('active');
+    document.getElementById('text-results').style.display = 'none';
+    document.getElementById('text-results').innerHTML = '';
+}
+
+// ════════════════════════════════════════════════════════════════════
+// AUDIO SCAN
+// ════════════════════════════════════════════════════════════════════
+let audioFile = null;
+
+const audioDropZone = document.getElementById('audio-upload-zone');
+['dragenter','dragover','dragleave','drop'].forEach(e => audioDropZone.addEventListener(e, ev => ev.preventDefault()));
+['dragenter','dragover'].forEach(e => audioDropZone.addEventListener(e, () => audioDropZone.classList.add('dragover')));
+['dragleave','drop'].forEach(e => audioDropZone.addEventListener(e, () => audioDropZone.classList.remove('dragover')));
+audioDropZone.addEventListener('drop', e => handleAudioFile(e.dataTransfer.files));
+
+function handleAudioFile(files) {
+    if (!files.length) return;
+    audioFile = files[0];
+    document.getElementById('audio-upload-label').textContent = audioFile.name;
+    document.getElementById('audio-scan-btn').style.display = 'inline-flex';
+}
+
+async function startAudioScan() {
+    if (!audioFile) return;
+    document.getElementById('audio-upload-section').style.display = 'none';
+    document.getElementById('audio-spinner').classList.add('active');
+    document.getElementById('audio-results').style.display = 'none';
+
+    const fd = new FormData();
+    fd.append('file', audioFile);
+
+    try {
+        const res = await fetch('/api/scan/audio', { method: 'POST', body: fd });
+        if (!res.ok) throw new Error((await res.json()).detail || 'Scan failed');
+        const data = await res.json();
+        renderAudioResults(data);
+    } catch (err) {
+        alert('Audio scan failed: ' + err.message);
+        resetAudioTab();
+    }
+}
+
+function renderAudioResults(r) {
+    document.getElementById('audio-spinner').classList.remove('active');
+    const sebi = r.sebi_analysis || {};
+    const container = document.getElementById('audio-results');
+
+    let html = buildVerdictBanner(r.verdict);
+    html += buildRiskMeter(r.composite_risk_score || 0);
+
+    const aPct = ((r.audio_score || 0) * 100).toFixed(1);
+    html += `<div class="score-row">
+        <div class="score-card">
+            <div class="s-label">🔊 Audio Deepfake Score</div>
+            <div class="s-val">${aPct}%</div>
+            <div class="bar-bg"><div class="bar-fill" style="width:${aPct}%;background:var(--purple)"></div></div>
+        </div>
+        <div class="score-card">
+            <div class="s-label">📝 Transcript Length</div>
+            <div class="s-val">${(r.transcript || '').length}</div>
+            <div style="font-size:0.8rem;color:var(--muted);margin-top:4px">characters extracted</div>
+        </div>
+    </div>`;
+
+    html += buildSignalGrid(sebi.signal_scores);
+
+    // Transcript
+    if (r.transcript) {
+        html += `<div class="transcript-panel"><div class="section-title">📝 Transcript</div><div style="line-height:1.7;font-size:0.9rem">${r.transcript}</div></div>`;
+    }
+
+    html += buildFlagsList(sebi);
+    html += buildRegistryCard(sebi, r.registry_check);
+    html += buildReasoningBox(sebi);
+    html += '<div style="text-align:center"><button class="btn btn-ghost" onclick="resetAudioTab()">← Scan another audio</button></div>';
+
+    container.innerHTML = html;
+    container.style.display = 'block';
+    animateRiskBar(r.composite_risk_score || 0);
+}
+
+function resetAudioTab() {
+    audioFile = null;
+    document.getElementById('audio-upload-label').textContent = 'Drop an audio file or click to upload';
+    document.getElementById('audio-file-input').value = '';
+    document.getElementById('audio-scan-btn').style.display = 'none';
+    document.getElementById('audio-upload-section').style.display = 'block';
+    document.getElementById('audio-spinner').classList.remove('active');
+    document.getElementById('audio-results').style.display = 'none';
+    document.getElementById('audio-results').innerHTML = '';
+}
+
+// ════════════════════════════════════════════════════════════════════
+// IMAGE SCAN
+// ════════════════════════════════════════════════════════════════════
+let imageFile = null;
+
+const imageDropZone = document.getElementById('image-upload-zone');
+['dragenter','dragover','dragleave','drop'].forEach(e => imageDropZone.addEventListener(e, ev => ev.preventDefault()));
+['dragenter','dragover'].forEach(e => imageDropZone.addEventListener(e, () => imageDropZone.classList.add('dragover')));
+['dragleave','drop'].forEach(e => imageDropZone.addEventListener(e, () => imageDropZone.classList.remove('dragover')));
+imageDropZone.addEventListener('drop', e => handleImageFile(e.dataTransfer.files));
+
+function handleImageFile(files) {
+    if (!files.length) return;
+    imageFile = files[0];
+    document.getElementById('image-upload-label').textContent = imageFile.name;
+    document.getElementById('image-scan-btn').style.display = 'inline-flex';
+
+    // Preview
+    const reader = new FileReader();
+    reader.onload = e => {
+        const preview = document.getElementById('image-preview');
+        preview.src = e.target.result;
+        preview.style.display = 'block';
+    };
+    reader.readAsDataURL(imageFile);
+}
+
+async function startImageScan() {
+    if (!imageFile) return;
+    document.getElementById('image-upload-section').style.display = 'none';
+    document.getElementById('image-spinner').classList.add('active');
+    document.getElementById('image-results').style.display = 'none';
+
+    const fd = new FormData();
+    fd.append('file', imageFile);
+
+    try {
+        const res = await fetch('/api/scan/image', { method: 'POST', body: fd });
+        if (!res.ok) throw new Error((await res.json()).detail || 'Scan failed');
+        const data = await res.json();
+        renderImageResults(data);
+    } catch (err) {
+        alert('Image scan failed: ' + err.message);
+        resetImageTab();
+    }
+}
+
+function renderImageResults(r) {
+    document.getElementById('image-spinner').classList.remove('active');
+    const sebi = r.sebi_analysis || {};
+    const container = document.getElementById('image-results');
+
+    let html = buildVerdictBanner(r.verdict);
+    html += buildRiskMeter(r.composite_risk_score || 0);
+
+    const vPct = ((r.vision_score || 0) * 100).toFixed(1);
+    const ocrConf = ((r.ocr_confidence || 0) * 100).toFixed(0);
+    html += `<div class="score-row">
+        <div class="score-card">
+            <div class="s-label">👁 Face Deepfake Score</div>
+            <div class="s-val">${vPct}%</div>
+            <div class="bar-bg"><div class="bar-fill" style="width:${vPct}%;background:var(--danger)"></div></div>
+        </div>
+        <div class="score-card">
+            <div class="s-label">📄 OCR Confidence</div>
+            <div class="s-val">${ocrConf}%</div>
+            <div style="font-size:0.8rem;color:var(--muted);margin-top:4px">${(r.ocr_blocks || []).length} text blocks found</div>
+        </div>
+    </div>`;
+
+    html += buildSignalGrid(sebi.signal_scores);
+
+    // OCR extracted text
+    if (r.extracted_text) {
+        html += `<div class="section-title">📄 Extracted Text (OCR)</div>
+        <div class="ocr-text-box">${r.extracted_text}</div>`;
+    }
+
+    html += buildFlagsList(sebi);
+    html += buildRegistryCard(sebi, r.registry_check);
+    html += buildReasoningBox(sebi);
+    html += '<div style="text-align:center"><button class="btn btn-ghost" onclick="resetImageTab()">← Scan another image</button></div>';
+
+    container.innerHTML = html;
+    container.style.display = 'block';
+    animateRiskBar(r.composite_risk_score || 0);
+}
+
+function resetImageTab() {
+    imageFile = null;
+    document.getElementById('image-upload-label').textContent = 'Drop an image or click to upload';
+    document.getElementById('image-file-input').value = '';
+    document.getElementById('image-scan-btn').style.display = 'none';
+    document.getElementById('image-preview').style.display = 'none';
+    document.getElementById('image-upload-section').style.display = 'block';
+    document.getElementById('image-spinner').classList.remove('active');
+    document.getElementById('image-results').style.display = 'none';
+    document.getElementById('image-results').innerHTML = '';
 }
 </script>
 </body>

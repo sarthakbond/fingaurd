@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=400">
+  <title>FinGuard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <!-- Header -->
+  <div class="header">
+    <div class="header-row">
+      <h1>⚡ FinGuard</h1>
+      <div class="status-dot" id="status-dot" title="Checking connection..."></div>
+    </div>
+    <p class="subtitle">AI Scam & Deepfake Detector</p>
+  </div>
+
+  <!-- Settings -->
+  <div class="settings-section" id="settings-section">
+    <div class="setting-row">
+      <label for="api-url-input">API Server URL</label>
+      <div class="input-row">
+        <input type="text" id="api-url-input" placeholder="http://localhost:8000">
+        <button class="btn-sm" id="save-url-btn" onclick="saveApiUrl()">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Scan -->
+  <div class="quick-scan">
+    <textarea id="quick-text" placeholder="Paste suspicious text here and scan instantly..."></textarea>
+    <button class="btn-primary" id="quick-scan-btn" onclick="quickScan()">🔍 Scan Text</button>
+  </div>
+
+  <!-- Result Section -->
+  <div id="result-section" style="display:none">
+    <div class="result-banner" id="result-banner">
+      <div class="result-verdict" id="result-verdict">—</div>
+      <div class="result-risk" id="result-risk">Risk: —</div>
+    </div>
+
+    <!-- Signal bars -->
+    <div class="signals-compact" id="signals-compact"></div>
+
+    <!-- Flags -->
+    <div id="flags-compact" style="display:none">
+      <div class="section-label">🚩 Flags</div>
+      <div id="flags-list"></div>
+    </div>
+
+    <!-- Reasoning -->
+    <div id="reasoning-compact" style="display:none">
+      <div class="section-label">🤖 Reasoning</div>
+      <p class="reasoning-text" id="reasoning-text"></p>
+    </div>
+  </div>
+
+  <!-- Last scan info -->
+  <div class="footer" id="footer">
+    <span id="last-scan-info">Right-click any text or image to scan</span>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

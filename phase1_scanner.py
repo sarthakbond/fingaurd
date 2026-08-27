@@ -4,6 +4,7 @@ import gc
 import cv2
 import torch
 import torchaudio
+# pyrefly: ignore [missing-import]
 from facenet_pytorch import MTCNN
 from torchvision import transforms
 from transformers import (
@@ -12,6 +13,7 @@ from transformers import (
 )
 from PIL import Image
 from model import HybridDeepfakeDetector
+# pyrefly: ignore [missing-import]
 import librosa
 import numpy as np
 
@@ -24,6 +26,7 @@ def print_vram(stage_name):
         print(f"[VRAM] {stage_name}: CUDA not available.")
 
 def extract_audio_from_video(video_path, audio_out_path):
+    # pyrefly: ignore [missing-import]
     from moviepy import VideoFileClip
     print(f"Extracting audio from {video_path}...")
     try:
