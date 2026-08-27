@@ -36,6 +36,8 @@ It runs entirely on your laptop GPU (NVIDIA RTX 4050, 6GB VRAM) with **zero clou
 | LLM Reasoning | **LLaMA 3.1** via **Ollama** (local) | SEBI compliance analysis with structured JSON output |
 | OCR | **EasyOCR** (Hindi + English) | Text extraction from scam screenshots |
 | Registry Matching | **RapidFuzz** | Fuzzy matching against SEBI's registered intermediary database |
+| Saliency Heatmaps | **OpenCV + SRM Filters** | Forensic noise residual heatmaps highlighting GAN artifacts |
+| Complaint Generator | **Legal Formatting Engine** | Automated drafting for SEBI SCORES complaint lodgement |
 | Video Processing | **MoviePy** + **OpenCV** | Frame extraction, audio separation |
 | Audio Processing | **librosa** + **soundfile** | Audio loading, normalization, chunking |
 

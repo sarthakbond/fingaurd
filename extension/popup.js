@@ -1,5 +1,6 @@
 /**
  * FinGuard Chrome Extension — Popup Logic
+ * Safely renders results using safe DOM methods.
  */
 
 const SIGNAL_LABELS = {
@@ -80,7 +81,7 @@ function quickScan() {
   });
 }
 
-// ── Render Result ──────────────────────────────────────────────────
+// ── Render Result (Safe DOM) ───────────────────────────────────────
 function renderResult(data) {
   const section = document.getElementById('result-section');
   section.style.display = 'block';
@@ -108,12 +109,30 @@ function renderResult(data) {
     const pct = (score * 100).toFixed(0);
     const color = score >= 0.7 ? '#f43f5e' : score >= 0.4 ? '#f59e0b' : '#10b981';
 
-    signalsContainer.innerHTML += `
-      <div class="sig-row">
-        <span class="sig-name">${label}</span>
-        <div class="sig-bar-bg"><div class="sig-bar-fill" style="width:${pct}%;background:${color}"></div></div>
-        <span class="sig-pct" style="color:${color}">${pct}%</span>
-      </div>`;
+    const row = document.createElement('div');
+    row.className = 'sig-row';
+
+    const nameSpan = document.createElement('span');
+    nameSpan.className = 'sig-name';
+    nameSpan.textContent = label;
+
+    const barBg = document.createElement('div');
+    barBg.className = 'sig-bar-bg';
+    const barFill = document.createElement('div');
+    barFill.className = 'sig-bar-fill';
+    barFill.style.width = `${pct}%`;
+    barFill.style.background = color;
+    barBg.appendChild(barFill);
+
+    const pctSpan = document.createElement('span');
+    pctSpan.className = 'sig-pct';
+    pctSpan.style.color = color;
+    pctSpan.textContent = `${pct}%`;
+
+    row.appendChild(nameSpan);
+    row.appendChild(barBg);
+    row.appendChild(pctSpan);
+    signalsContainer.appendChild(row);
   }
 
   // Flags
@@ -128,14 +147,26 @@ function renderResult(data) {
 
   const flagsSection = document.getElementById('flags-compact');
   const flagsList = document.getElementById('flags-list');
+  flagsList.innerHTML = '';
+
   if (allFlags.length) {
     flagsSection.style.display = 'block';
-    flagsList.innerHTML = allFlags.map(f => `
-      <div class="flag-compact type-${f.type}">
-        <div class="flag-quote">"${f.quote}"</div>
-        <div class="flag-label">${f.label}</div>
-      </div>
-    `).join('');
+    allFlags.forEach(f => {
+      const item = document.createElement('div');
+      item.className = `flag-compact type-${f.type}`;
+
+      const quoteEl = document.createElement('div');
+      quoteEl.className = 'flag-quote';
+      quoteEl.textContent = `"${f.quote}"`;
+
+      const labelEl = document.createElement('div');
+      labelEl.className = 'flag-label';
+      labelEl.textContent = f.label;
+
+      item.appendChild(quoteEl);
+      item.appendChild(labelEl);
+      flagsList.appendChild(item);
+    });
   } else {
     flagsSection.style.display = 'none';
   }

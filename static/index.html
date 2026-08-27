@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FinGuard — SEBI Deepfake & Scam Detector</title>
-    <meta name="description" content="AI-powered local video analysis for financial deepfakes and SEBI regulatory violations.">
+    <meta name="description" content="AI-powered forensic pipeline for financial deepfakes and SEBI regulatory violations.">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -18,6 +18,8 @@
             --danger-dim: rgba(244,63,94,0.15);
             --warning: #f59e0b;
             --warning-dim: rgba(245,158,11,0.15);
+            --suspicious: #f97316;
+            --suspicious-dim: rgba(249,115,22,0.15);
             --success: #10b981;
             --success-dim: rgba(16,185,129,0.15);
             --purple: #a855f7;
@@ -45,7 +47,7 @@
         /* ── Header ── */
         header {
             text-align: center;
-            margin-bottom: 2rem;
+            margin-bottom: 1.8rem;
         }
         header h1 {
             font-size: 2.4rem;
@@ -57,7 +59,7 @@
         }
         header p {
             color: var(--muted);
-            margin-top: 0.5rem;
+            margin-top: 0.4rem;
             font-size: 0.95rem;
         }
 
@@ -68,7 +70,8 @@
             border-radius: var(--radius);
             padding: 2rem;
             width: 100%;
-            max-width: 820px;
+            max-width: 860px;
+            box-shadow: 0 16px 48px rgba(0,0,0,0.4);
         }
 
         /* ── Tab Navigation ── */
@@ -182,6 +185,21 @@
             padding: 8px 16px;
             margin-top: 1rem;
         }
+        .btn-action {
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn-action:hover { border-color: var(--primary); background: var(--primary-dim); }
 
         /* ── Spinner ── */
         .spinner-overlay {
@@ -227,16 +245,32 @@
 
         .verdict-banner {
             border-radius: 12px;
-            padding: 1.5rem;
+            padding: 1.4rem;
             text-align: center;
             margin-bottom: 1.5rem;
             border: 1px solid;
         }
         .verdict-banner.safe { background: var(--success-dim); border-color: rgba(16,185,129,0.3); }
+        .verdict-banner.suspicious { background: var(--suspicious-dim); border-color: rgba(249,115,22,0.3); }
         .verdict-banner.warning { background: var(--warning-dim); border-color: rgba(245,158,11,0.3); }
         .verdict-banner.danger { background: var(--danger-dim); border-color: rgba(244,63,94,0.3); }
         .verdict-banner .label { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; opacity: 0.7; margin-bottom: 4px; }
         .verdict-banner .title { font-size: 1.6rem; font-weight: 800; }
+
+        /* ── Impersonation Alert Banner ── */
+        .impersonation-banner {
+            background: rgba(239,68,68,0.15);
+            border: 1px solid var(--danger);
+            border-radius: 10px;
+            padding: 12px 16px;
+            margin-bottom: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: #fca5a5;
+        }
 
         /* ── Risk Meter ── */
         .risk-meter {
@@ -250,6 +284,69 @@
         .risk-meter .risk-val { font-size: 2rem; font-weight: 800; margin-bottom: 6px; }
         .risk-bar-bg { width: 100%; height: 8px; background: rgba(255,255,255,0.06); border-radius: 4px; overflow: hidden; }
         .risk-bar-fill { height: 100%; border-radius: 4px; transition: width 1.2s cubic-bezier(0.22,1,0.36,1); background: linear-gradient(90deg, var(--success), var(--warning), var(--danger)); }
+
+        /* ── Interactive Timeline Risk Scrubber ── */
+        .timeline-scrubber-card {
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.2rem;
+            margin-bottom: 1.5rem;
+        }
+        .scrubber-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .scrubber-track-container {
+            position: relative;
+            height: 48px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+            display: flex;
+            align-items: flex-end;
+            padding: 0 4px;
+        }
+        .scrubber-bar {
+            flex: 1;
+            margin: 0 1px;
+            border-radius: 3px 3px 0 0;
+            transition: all 0.2s;
+            cursor: pointer;
+            min-height: 4px;
+        }
+        .scrubber-bar:hover {
+            opacity: 0.8;
+            transform: scaleY(1.1);
+        }
+        .scrubber-ticks {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.7rem;
+            color: var(--muted);
+            margin-top: 6px;
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* ── Heatmap Artifact View ── */
+        .heatmap-card {
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.2rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        .heatmap-img {
+            max-width: 240px;
+            border-radius: 10px;
+            border: 1px solid rgba(244,63,94,0.4);
+            margin-top: 10px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+        }
 
         /* ── Score row ── */
         .score-row {
@@ -311,8 +408,11 @@
             border-radius: 4px;
             line-height: 1.9;
             font-size: 0.95rem;
-            cursor: default;
-            transition: background 0.2s;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .segment:hover {
+            outline: 1px solid var(--primary);
         }
         .segment .ts {
             font-size: 0.7rem;
@@ -324,6 +424,7 @@
         .segment.flag-urgency { background: rgba(245,158,11,0.2); border-bottom: 2px solid var(--warning); }
         .segment.flag-social { background: rgba(168,85,247,0.2); border-bottom: 2px solid var(--purple); }
         .segment.flag-paywall { background: rgba(6,182,212,0.2); border-bottom: 2px solid var(--cyan); }
+        .segment.highlight-pulse { outline: 2px solid #3b82f6; background: rgba(59,130,246,0.3) !important; }
 
         .legend {
             display: flex; gap: 14px; flex-wrap: wrap;
@@ -394,6 +495,29 @@
             margin-bottom: 1.5rem;
         }
 
+        /* ── SEBI SCORES Complaint Box ── */
+        .scores-box {
+            background: #090d16;
+            border: 1px solid rgba(59,130,246,0.3);
+            border-radius: 12px;
+            padding: 1.2rem;
+            margin-bottom: 1.5rem;
+        }
+        .scores-pre {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.78rem;
+            color: #cbd5e1;
+            white-space: pre-wrap;
+            max-height: 220px;
+            overflow-y: auto;
+            background: rgba(0,0,0,0.4);
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            margin: 10px 0;
+            line-height: 1.4;
+        }
+
         /* ── Responsive ── */
         @media (max-width: 640px) {
             .score-row, .signal-grid { grid-template-columns: 1fr; }
@@ -405,7 +529,7 @@
 
 <header>
     <h1>⚡ FinGuard</h1>
-    <p>Local AI · SEBI Compliance · Deepfake Detection</p>
+    <p>Forensic AI Pipeline · Multi-Signal SEBI Compliance · Deepfake Shield</p>
 </header>
 
 <div class="card" id="main-card">
@@ -424,7 +548,7 @@
             <div class="upload-zone" id="video-upload-zone" onclick="document.getElementById('video-file-input').click()">
                 <div class="icon">🎬</div>
                 <h3 id="video-upload-label">Drop a video or click to upload</h3>
-                <p>Supports .mp4 · .mov · .avi · .mkv</p>
+                <p>Supports .mp4 · .mov · .avi · .mkv (Max 100MB)</p>
                 <input type="file" id="video-file-input" accept=".mp4,.avi,.mov,.mkv" onchange="handleVideoFile(this.files)">
             </div>
             <div style="text-align:center">
@@ -440,12 +564,12 @@
             </div>
             <div class="stage-list">
                 <div class="stage-item active" id="s-stage1_ingest"><div class="stage-dot"></div><span>Stage 1 — Preprocessing (face extraction + audio)</span></div>
-                <div class="stage-item" id="s-stage2_vision"><div class="stage-dot"></div><span>Stage 2 — Vision deepfake detection</span></div>
-                <div class="stage-item" id="s-stage3_audio"><div class="stage-dot"></div><span>Stage 3 — Audio deepfake detection</span></div>
-                <div class="stage-item" id="s-stage4_transcription"><div class="stage-dot"></div><span>Stage 4 — Transcription (Whisper)</span></div>
-                <div class="stage-item" id="s-stage5_llm"><div class="stage-dot"></div><span>Stage 5 — SEBI compliance reasoning (LLM)</span></div>
+                <div class="stage-item" id="s-stage2_vision"><div class="stage-dot"></div><span>Stage 2 — Vision deepfake detection & SRM explainability</span></div>
+                <div class="stage-item" id="s-stage4_transcription"><div class="stage-dot"></div><span>Stage 3 — Speech transcription (Whisper)</span></div>
+                <div class="stage-item" id="s-stage3_audio"><div class="stage-dot"></div><span>Stage 4 — Audio deepfake detection & Impersonation check</span></div>
+                <div class="stage-item" id="s-stage5_llm"><div class="stage-dot"></div><span>Stage 5 — SEBI compliance reasoning & anti-injection firewall</span></div>
                 <div class="stage-item" id="s-stage6_registry"><div class="stage-dot"></div><span>Stage 6 — SEBI registry cross-check</span></div>
-                <div class="stage-item" id="s-stage7_aggregation"><div class="stage-dot"></div><span>Stage 7 — Final verdict</span></div>
+                <div class="stage-item" id="s-stage7_aggregation"><div class="stage-dot"></div><span>Stage 7 — Final calibrated synthesis & SCORES draft</span></div>
             </div>
         </div>
 
@@ -456,7 +580,7 @@
     <!-- ══════════════ TEXT TAB ══════════════ -->
     <div class="tab-content" id="tab-text">
         <div id="text-input-section">
-            <textarea class="text-input-area" id="text-input" placeholder="Paste any suspicious text here...&#10;&#10;Example: &quot;I am SEBI registered advisor INA000012345. I guarantee 40% monthly returns. Join my premium WhatsApp group now, only 50 seats left!&quot;"></textarea>
+            <textarea class="text-input-area" id="text-input" placeholder="Paste any suspicious text or WhatsApp/Telegram forward here...&#10;&#10;Example: &quot;I am SEBI registered advisor INA000012345. I guarantee 40% monthly returns. Join my VIP WhatsApp group now, only 50 seats left!&quot;"></textarea>
             <div class="char-count"><span id="text-char-count">0</span> characters</div>
             <div style="text-align:center">
                 <button class="btn" id="text-scan-btn" onclick="startTextScan()">🔍 Analyse Text</button>
@@ -464,7 +588,7 @@
         </div>
         <div class="spinner-overlay" id="text-spinner">
             <div class="spinner"></div>
-            <span class="spinner-text">Running multi-signal analysis...</span>
+            <span class="spinner-text">Running multi-signal analysis & anti-injection firewall...</span>
         </div>
         <div class="results-section" id="text-results"></div>
     </div>
@@ -475,7 +599,7 @@
             <div class="upload-zone" id="audio-upload-zone" onclick="document.getElementById('audio-file-input').click()">
                 <div class="icon">🎙</div>
                 <h3 id="audio-upload-label">Drop an audio file or click to upload</h3>
-                <p>Supports .mp3 · .wav · .ogg · .m4a · .flac · .aac</p>
+                <p>Supports .mp3 · .wav · .ogg · .m4a · .flac (Max 100MB)</p>
                 <input type="file" id="audio-file-input" accept=".mp3,.wav,.ogg,.m4a,.flac,.aac" onchange="handleAudioFile(this.files)">
             </div>
             <div style="text-align:center">
@@ -484,7 +608,7 @@
         </div>
         <div class="spinner-overlay" id="audio-spinner">
             <div class="spinner"></div>
-            <span class="spinner-text">Processing audio through deepfake + SEBI pipeline...</span>
+            <span class="spinner-text">Processing audio through deepfake + SEBI timeline pipeline...</span>
         </div>
         <div class="results-section" id="audio-results"></div>
     </div>
@@ -495,7 +619,7 @@
             <div class="upload-zone" id="image-upload-zone" onclick="document.getElementById('image-file-input').click()">
                 <div class="icon">🖼</div>
                 <h3 id="image-upload-label">Drop an image or click to upload</h3>
-                <p>Supports .jpg · .png · .webp · Screenshots of scam posts</p>
+                <p>Supports .jpg · .png · .webp · Profit P&L Screenshots (Max 100MB)</p>
                 <input type="file" id="image-file-input" accept=".jpg,.jpeg,.png,.webp,.bmp" onchange="handleImageFile(this.files)">
             </div>
             <img class="img-preview" id="image-preview">
@@ -505,7 +629,7 @@
         </div>
         <div class="spinner-overlay" id="image-spinner">
             <div class="spinner"></div>
-            <span class="spinner-text">Running OCR + deepfake + SEBI analysis...</span>
+            <span class="spinner-text">Running OCR + face artifact + SEBI analysis...</span>
         </div>
         <div class="results-section" id="image-results"></div>
     </div>
@@ -529,32 +653,96 @@ function formatTime(secs) {
 }
 
 function getSignalColor(score) {
-    if (score >= 0.7) return 'var(--danger)';
-    if (score >= 0.4) return 'var(--warning)';
+    if (score >= 0.65) return 'var(--danger)';
+    if (score >= 0.35) return 'var(--warning)';
     return 'var(--success)';
 }
 
 function getVerdictClass(verdict) {
     if (verdict.includes('Critical')) return 'danger';
     if (verdict.includes('Warning')) return 'warning';
+    if (verdict.includes('Suspicious')) return 'suspicious';
     return 'safe';
 }
 
-// ── Build common results HTML ──────────────────────────────────────
+// ── Common UI Builders ─────────────────────────────────────────────
 function buildVerdictBanner(verdict) {
     const cls = getVerdictClass(verdict);
     return `<div class="verdict-banner ${cls}">
-        <div class="label">Final Verdict</div>
+        <div class="label">Calibrated Regulatory Verdict</div>
         <div class="title">${verdict}</div>
+    </div>`;
+}
+
+function buildImpersonationBanner(impersonation) {
+    if (!impersonation || !impersonation.is_impersonation) return '';
+    return `<div class="impersonation-banner">
+        <span style="font-size:1.4rem">🚨</span>
+        <div>${impersonation.warning || 'AI Voice Clone Impersonation Detected!'}</div>
     </div>`;
 }
 
 function buildRiskMeter(score) {
     const pct = (score * 100).toFixed(1);
     return `<div class="risk-meter">
-        <div class="risk-label">🎯 Composite Risk Score</div>
+        <div class="risk-label">🎯 Composite Fraud Risk Score</div>
         <div class="risk-val" style="color:${getSignalColor(score)}">${pct}%</div>
         <div class="risk-bar-bg"><div class="risk-bar-fill" style="width:0%" id="risk-bar-animated"></div></div>
+    </div>`;
+}
+
+function buildTimelineScrubber(allSegments, timelineTrack) {
+    const segments = (allSegments && allSegments.length) ? allSegments : [];
+    if (!segments.length) return '';
+
+    let barsHtml = '';
+    segments.forEach((seg, idx) => {
+        const score = seg.score || 0;
+        const heightPct = Math.max(15, Math.round(score * 100));
+        let color = '#10b981';
+        if (score >= 0.65) color = '#f43f5e';
+        else if (score >= 0.40) color = '#f59e0b';
+
+        barsHtml += `<div class="scrubber-bar" 
+            style="height:${heightPct}%; background:${color};" 
+            title="Time: ${formatTime(seg.start)} - ${formatTime(seg.end)} | Deepfake Risk: ${(score*100).toFixed(0)}%"
+            onclick="jumpToTimelineSegment(${seg.start})"></div>`;
+    });
+
+    const maxTime = segments[segments.length - 1].end || 0;
+
+    return `<div class="timeline-scrubber-card">
+        <div class="scrubber-header">
+            <div class="section-title" style="margin:0">📈 Interactive Video/Audio Risk Scrubber</div>
+            <span style="font-size:0.75rem;color:var(--muted)">Click any bar to jump to segment</span>
+        </div>
+        <div class="scrubber-track-container">${barsHtml}</div>
+        <div class="scrubber-ticks">
+            <span>00:00</span>
+            <span>${formatTime(maxTime / 2)}</span>
+            <span>${formatTime(maxTime)}</span>
+        </div>
+    </div>`;
+}
+
+function jumpToTimelineSegment(startTime) {
+    const segs = document.querySelectorAll('.segment');
+    segs.forEach(s => {
+        const sTime = parseFloat(s.getAttribute('data-start') || '0');
+        if (Math.abs(sTime - startTime) <= 5.0) {
+            s.classList.add('highlight-pulse');
+            s.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            setTimeout(() => s.classList.remove('highlight-pulse'), 3000);
+        }
+    });
+}
+
+function buildHeatmapCard(heatmapBase64) {
+    if (!heatmapBase64) return '';
+    return `<div class="heatmap-card">
+        <div class="section-title">🔬 Visual Forensic Artifact Heatmap (SRM Residuals)</div>
+        <img class="heatmap-img" src="${heatmapBase64}" alt="Forensic Saliency Map">
+        <p style="font-size:0.78rem;color:var(--muted);margin-top:6px">Red clusters denote anomalous high-frequency GAN synthesis noise seams</p>
     </div>`;
 }
 
@@ -570,7 +758,7 @@ function buildSignalGrid(signalScores) {
         'credential_misrep': '🎭 Credential Misrep.'
     };
 
-    let html = '<div class="section-title">📊 Signal Breakdown</div><div class="signal-grid">';
+    let html = '<div class="section-title">📊 Multi-Signal Breakdown</div><div class="signal-grid">';
     for (const [key, label] of Object.entries(labels)) {
         const score = signalScores[key] || 0;
         const pct = (score * 100).toFixed(0);
@@ -599,12 +787,12 @@ function buildFlagsList(sebi) {
 
     if (!allFlags.length) return '';
 
-    let html = '<div class="section-title">🚩 Flagged Statements</div><div class="flag-list">';
+    let html = '<div class="section-title">🚩 Flagged Evidentiary Statements</div><div class="flag-list">';
     allFlags.forEach(f => {
         html += `<div class="flag-item type-${f.type}">
             <span class="flag-icon">${f.icon}</span>
             <div>
-                <div class="flag-quote">"${f.quote}"</div>
+                <div class="flag-quote">"${escapeHtml(f.quote)}"</div>
                 <div class="flag-type">${f.label}</div>
             </div>
         </div>`;
@@ -626,20 +814,65 @@ function buildRegistryCard(sebi, registry) {
     };
     const [cls, label] = pilMap[registry.verdict] || ['pill-notclaimed', registry.verdict];
 
-    return `<div class="section-title">🏛 SEBI Registry Check</div>
+    return `<div class="section-title">🏛 SEBI Registry Cross-Check</div>
     <div class="registry-card">
         <div>
-            <div style="font-weight:600">${name}</div>
-            <div style="font-size:0.8rem;color:var(--muted);margin-top:2px">${regNo}</div>
+            <div style="font-weight:600">${escapeHtml(name)}</div>
+            <div style="font-size:0.8rem;color:var(--muted);margin-top:2px">${escapeHtml(regNo)}</div>
         </div>
         <div class="registry-pill ${cls}">${label}</div>
     </div>`;
 }
 
+function buildScoresComplaintBox(complaintText) {
+    if (!complaintText) return '';
+    const safeText = escapeHtml(complaintText);
+    return `<div class="scores-box">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div class="section-title" style="margin:0;color:#60a5fa">⚖️ SEBI SCORES Complaint Lodgement Draft</div>
+            <div style="display:flex;gap:8px;">
+                <button class="btn-action" onclick="copyScoresComplaint()">📋 Copy Complaint</button>
+                <button class="btn-action" onclick="downloadScoresComplaint()">📥 Download Report</button>
+            </div>
+        </div>
+        <pre class="scores-pre" id="scores-complaint-content">${safeText}</pre>
+    </div>`;
+}
+
+function copyScoresComplaint() {
+    const el = document.getElementById('scores-complaint-content');
+    if (!el) return;
+    navigator.clipboard.writeText(el.textContent).then(() => {
+        alert('✅ SEBI SCORES complaint draft copied to clipboard!');
+    });
+}
+
+function downloadScoresComplaint() {
+    const el = document.getElementById('scores-complaint-content');
+    if (!el) return;
+    const blob = new Blob([el.textContent], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `SEBI_SCORES_Complaint_${Date.now()}.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
 function buildReasoningBox(sebi) {
     if (!sebi.reasoning) return '';
-    return `<div class="section-title">🤖 LLM Reasoning</div>
-    <div class="reasoning-box">${sebi.reasoning}</div>`;
+    return `<div class="section-title">🤖 LLM Compliance Reasoning</div>
+    <div class="reasoning-box">${escapeHtml(sebi.reasoning)}</div>`;
+}
+
+function escapeHtml(str) {
+    if (!str) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
 }
 
 function animateRiskBar(score) {
@@ -657,18 +890,17 @@ let pollInterval = null;
 let timerInterval = null;
 let startTime = null;
 
-const STAGE_ORDER = ['stage1_ingest','stage2_vision','stage3_audio','stage4_transcription','stage5_llm','stage6_registry','stage7_aggregation'];
+const STAGE_ORDER = ['stage1_ingest','stage2_vision','stage4_transcription','stage3_audio','stage5_llm','stage6_registry','stage7_aggregation'];
 const STAGE_LABELS = {
     'stage1_ingest': 'Stage 1 — Preprocessing face & audio...',
-    'stage2_vision': 'Stage 2 — Running Vision Deepfake Model...',
-    'stage3_audio': 'Stage 3 — Running Audio Spoof Detection...',
-    'stage4_transcription': 'Stage 4 — Transcribing Audio with Whisper...',
-    'stage5_llm': 'Stage 5 — Checking SEBI Compliance with LLM...',
+    'stage2_vision': 'Stage 2 — Running Vision Deepfake Model & SRM heatmap...',
+    'stage4_transcription': 'Stage 3 — Transcribing Speech with Whisper...',
+    'stage3_audio': 'Stage 4 — Running Audio Spoof & Impersonation Check...',
+    'stage5_llm': 'Stage 5 — Checking SEBI Compliance & Anti-Injection...',
     'stage6_registry': 'Stage 6 — Verifying SEBI Registrant Database...',
-    'stage7_aggregation': 'Stage 7 — Synthesizing Final Report...'
+    'stage7_aggregation': 'Stage 7 — Synthesizing Calibrated SCORES Draft...'
 };
 
-// Drag-drop for video
 const videoDropZone = document.getElementById('video-upload-zone');
 ['dragenter','dragover','dragleave','drop'].forEach(e => videoDropZone.addEventListener(e, ev => ev.preventDefault()));
 ['dragenter','dragover'].forEach(e => videoDropZone.addEventListener(e, () => videoDropZone.classList.add('dragover')));
@@ -700,7 +932,7 @@ async function startVideoScan() {
     document.getElementById('tab-nav').style.pointerEvents = 'none';
     document.getElementById('tab-nav').style.opacity = '0.5';
 
-    document.getElementById('progress-status-text').textContent = '📤 Uploading video to local backend...';
+    document.getElementById('progress-status-text').textContent = '📤 Uploading video to backend...';
     startTime = Date.now();
     timerInterval = setInterval(updateTimer, 1000);
 
@@ -770,23 +1002,30 @@ function renderVideoResults(r) {
     const container = document.getElementById('video-results');
 
     let html = buildVerdictBanner(r.verdict);
-    html += buildRiskMeter(sebi.composite_risk_score || 0);
+    html += buildImpersonationBanner(r.impersonation_check);
+    html += buildRiskMeter(r.composite_risk_score || sebi.composite_risk_score || 0);
+
+    // Interactive Scrubber
+    html += buildTimelineScrubber(r.all_audio_segments, r.timeline_track);
 
     // Score row
     const vPct = ((r.vision_score || 0) * 100).toFixed(1);
     const aPct = ((r.audio_score || 0) * 100).toFixed(1);
     html += `<div class="score-row">
         <div class="score-card">
-            <div class="s-label">👁 Vision Score</div>
+            <div class="s-label">👁 Vision Deepfake Score</div>
             <div class="s-val">${vPct}%</div>
             <div class="bar-bg"><div class="bar-fill" style="width:${vPct}%;background:var(--danger)"></div></div>
         </div>
         <div class="score-card">
-            <div class="s-label">🔊 Audio Score</div>
+            <div class="s-label">🔊 Audio Deepfake Score</div>
             <div class="s-val">${aPct}%</div>
             <div class="bar-bg"><div class="bar-fill" style="width:${aPct}%;background:var(--purple)"></div></div>
         </div>
     </div>`;
+
+    // Explainability Heatmap
+    html += buildHeatmapCard(r.heatmap_base64);
 
     html += buildSignalGrid(sebi.signal_scores);
 
@@ -798,7 +1037,7 @@ function renderVideoResults(r) {
         const socialQuotes = (sebi.social_proof_inflation || []).map(q => q.toLowerCase());
         const paywallQuotes = (sebi.paywall_push || []).map(q => q.toLowerCase());
 
-        html += '<div class="transcript-panel"><div class="section-title">📝 Transcript — SEBI Flags Highlighted</div><div style="line-height:2">';
+        html += '<div class="transcript-panel"><div class="section-title">📝 Timestamped Transcript — SEBI Flags Highlighted</div><div style="line-height:2">';
         segments.forEach(seg => {
             const segLower = seg.text.toLowerCase();
             let flagClass = '';
@@ -807,7 +1046,7 @@ function renderVideoResults(r) {
             else if (socialQuotes.some(q => segLower.includes(q) || q.includes(segLower))) flagClass = 'flag-social';
             else if (paywallQuotes.some(q => segLower.includes(q) || q.includes(segLower))) flagClass = 'flag-paywall';
 
-            html += `<span class="segment ${flagClass}"><span class="ts">${formatTime(seg.start)}</span>${seg.text} </span>`;
+            html += `<span class="segment ${flagClass}" data-start="${seg.start}"><span class="ts">${formatTime(seg.start)}</span>${escapeHtml(seg.text)} </span>`;
         });
         html += '</div>';
         html += `<div class="legend">
@@ -821,11 +1060,12 @@ function renderVideoResults(r) {
     html += buildFlagsList(sebi);
     html += buildRegistryCard(sebi, r.registry_check);
     html += buildReasoningBox(sebi);
+    html += buildScoresComplaintBox(r.scores_complaint);
     html += '<div style="text-align:center"><button class="btn btn-ghost" onclick="resetVideoTab()">← Scan another video</button></div>';
 
     container.innerHTML = html;
     container.style.display = 'block';
-    animateRiskBar(sebi.composite_risk_score || 0);
+    animateRiskBar(r.composite_risk_score || sebi.composite_risk_score || 0);
 }
 
 function resetVideoTab() {
@@ -892,6 +1132,7 @@ function renderTextResults(r) {
     html += buildFlagsList(sebi);
     html += buildRegistryCard(sebi, r.registry_check);
     html += buildReasoningBox(sebi);
+    html += buildScoresComplaintBox(r.scores_complaint);
     html += '<div style="text-align:center"><button class="btn btn-ghost" onclick="resetTextTab()">← Scan more text</button></div>';
 
     container.innerHTML = html;
@@ -950,7 +1191,11 @@ function renderAudioResults(r) {
     const container = document.getElementById('audio-results');
 
     let html = buildVerdictBanner(r.verdict);
+    html += buildImpersonationBanner(r.impersonation_check);
     html += buildRiskMeter(r.composite_risk_score || 0);
+
+    // Interactive timeline
+    html += buildTimelineScrubber(r.all_audio_segments, r.timeline_track);
 
     const aPct = ((r.audio_score || 0) * 100).toFixed(1);
     html += `<div class="score-row">
@@ -962,20 +1207,20 @@ function renderAudioResults(r) {
         <div class="score-card">
             <div class="s-label">📝 Transcript Length</div>
             <div class="s-val">${(r.transcript || '').length}</div>
-            <div style="font-size:0.8rem;color:var(--muted);margin-top:4px">characters extracted</div>
+            <div style="font-size:0.8rem;color:var(--muted);margin-top:4px">characters transcribed</div>
         </div>
     </div>`;
 
     html += buildSignalGrid(sebi.signal_scores);
 
-    // Transcript
     if (r.transcript) {
-        html += `<div class="transcript-panel"><div class="section-title">📝 Transcript</div><div style="line-height:1.7;font-size:0.9rem">${r.transcript}</div></div>`;
+        html += `<div class="transcript-panel"><div class="section-title">📝 Full Audio Transcript</div><div style="line-height:1.7;font-size:0.9rem">${escapeHtml(r.transcript)}</div></div>`;
     }
 
     html += buildFlagsList(sebi);
     html += buildRegistryCard(sebi, r.registry_check);
     html += buildReasoningBox(sebi);
+    html += buildScoresComplaintBox(r.scores_complaint);
     html += '<div style="text-align:center"><button class="btn btn-ghost" onclick="resetAudioTab()">← Scan another audio</button></div>';
 
     container.innerHTML = html;
@@ -1011,7 +1256,6 @@ function handleImageFile(files) {
     document.getElementById('image-upload-label').textContent = imageFile.name;
     document.getElementById('image-scan-btn').style.display = 'inline-flex';
 
-    // Preview
     const reader = new FileReader();
     reader.onload = e => {
         const preview = document.getElementById('image-preview');
@@ -1060,21 +1304,24 @@ function renderImageResults(r) {
         <div class="score-card">
             <div class="s-label">📄 OCR Confidence</div>
             <div class="s-val">${ocrConf}%</div>
-            <div style="font-size:0.8rem;color:var(--muted);margin-top:4px">${(r.ocr_blocks || []).length} text blocks found</div>
+            <div style="font-size:0.8rem;color:var(--muted);margin-top:4px">${(r.ocr_blocks || []).length} text blocks extracted</div>
         </div>
     </div>`;
 
+    // Explainability heatmap if available
+    html += buildHeatmapCard(r.heatmap_base64);
+
     html += buildSignalGrid(sebi.signal_scores);
 
-    // OCR extracted text
     if (r.extracted_text) {
-        html += `<div class="section-title">📄 Extracted Text (OCR)</div>
-        <div class="ocr-text-box">${r.extracted_text}</div>`;
+        html += `<div class="section-title">📄 Extracted Text from Image (OCR)</div>
+        <div class="ocr-text-box">${escapeHtml(r.extracted_text)}</div>`;
     }
 
     html += buildFlagsList(sebi);
     html += buildRegistryCard(sebi, r.registry_check);
     html += buildReasoningBox(sebi);
+    html += buildScoresComplaintBox(r.scores_complaint);
     html += '<div style="text-align:center"><button class="btn btn-ghost" onclick="resetImageTab()">← Scan another image</button></div>';
 
     container.innerHTML = html;
