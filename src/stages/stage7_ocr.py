@@ -3,7 +3,7 @@ import torch
 from PIL import Image
 import numpy as np
 
-from src.config import get_device
+from src.config import get_device, get_threshold
 
 def run_stage7_ocr(image_path: str, job_id: str):
     """
@@ -45,8 +45,9 @@ def run_stage7_ocr(image_path: str, job_id: str):
         all_texts = []
         confidences = []
         
+        ocr_min_conf = get_threshold("ocr_min_confidence", 0.15)
         for (bbox, text, conf) in ocr_results:
-            if conf < 0.15:  # Skip very low confidence noise
+            if conf < ocr_min_conf:  # Skip very low confidence noise (from config)
                 continue
             text_clean = text.strip()
             if not text_clean:

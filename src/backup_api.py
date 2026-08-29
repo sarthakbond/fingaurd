@@ -52,9 +52,10 @@ def check_sightengine_deepfake(image_path: str):
             if "type" in data and "ai_generated" in data["type"]:
                 fake_score = max(fake_score, data["type"]["ai_generated"])
                 
+            fake_score_thresh = settings.get("backup_apis", {}).get("sightengine", {}).get("fake_score_threshold", 0.5)
             return {
                 "score": float(fake_score),
-                "is_fake": fake_score > 0.5,
+                "is_fake": fake_score > fake_score_thresh,
                 "provider": "sightengine",
                 "raw": data
             }

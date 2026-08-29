@@ -20,3 +20,5 @@ pillow
 opencv-python
 soundfile
 easyocr
+androguard
+python-Levenshtein

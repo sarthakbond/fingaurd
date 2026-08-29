@@ -6,12 +6,15 @@
   "permissions": [
     "contextMenus",
     "activeTab",
-    "storage"
+    "storage",
+    "scripting"
   ],
   "host_permissions": [
     "http://localhost:8000/*",
+    "http://127.0.0.1:8000/*",
     "https://*.ngrok.io/*",
-    "https://*.ngrok-free.app/*"
+    "https://*.ngrok-free.app/*",
+    "<all_urls>"
   ],
   "action": {
     "default_popup": "popup.html",

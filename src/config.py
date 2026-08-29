@@ -25,11 +25,20 @@ settings = load_config()
 def get_device():
     return "cpu" if settings.get("hardware", {}).get("force_cpu", False) else settings.get("hardware", {}).get("device", "cuda")
 
-def get_threshold(key):
-    return settings.get("thresholds", {}).get(key, 0.5)
+def get_threshold(key: str, default: float = 0.5) -> float:
+    return settings.get("thresholds", {}).get(key, default)
 
-def get_stage_config(stage_name):
+def get_stage_config(stage_name: str) -> dict:
     return settings.get("pipeline", {}).get(stage_name, {})
 
-def is_cloud_fallback_enabled():
+def get_vision_config() -> dict:
+    return settings.get("vision", {})
+
+def get_audio_config() -> dict:
+    return settings.get("audio", {})
+
+def get_server_config() -> dict:
+    return settings.get("server", {})
+
+def is_cloud_fallback_enabled() -> bool:
     return settings.get("backup_apis", {}).get("enable_cloud_fallback", False)

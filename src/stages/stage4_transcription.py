@@ -70,11 +70,22 @@ def run_stage4_transcription(audio_path: str, job_id: str):
             "segments": list[dict] # {"start": float, "end": float, "text": str}
         }
     """
+_CUDA_WHISPER_AVAILABLE = True
+
+def run_stage4_transcription(audio_path: str, job_id: str):
+    global _CUDA_WHISPER_AVAILABLE
     print(f"[{job_id}] Running Stage 4: Transcription")
     stage_config = get_stage_config("stage4_transcription")
-    model_size = stage_config.get("model_id", "medium").split("-")[-1]
-    whisper_device = "cpu"
-    compute_type = "int8"
+    model_size = stage_config.get("model_id", "Systran/faster-whisper-medium").split("-")[-1]
+    # C2: Respect config hardware.device — fall back to CPU if use_cpu forced or CUDA unavailable
+    use_cpu = stage_config.get("use_cpu", False)
+    if use_cpu or not _CUDA_WHISPER_AVAILABLE or not torch.cuda.is_available():
+        whisper_device = "cpu"
+        compute_type = "int8"
+    else:
+        whisper_device = "cuda"
+        compute_type = stage_config.get("compute_type", "float16")
+    print(f"[{job_id}] Whisper device={whisper_device}, compute_type={compute_type}")
     
     result = {
         "transcript": "",
@@ -85,25 +96,36 @@ def run_stage4_transcription(audio_path: str, job_id: str):
         print(f"[{job_id}] No audio track provided. Skipping transcription stage.")
         return result
         
-    try:
-        print(f"[{job_id}] Loading Whisper Model: {model_size} on {whisper_device} ({compute_type})...")
-        model = WhisperModel(model_size, device=whisper_device, compute_type=compute_type)
-            
-        print(f"[{job_id}] Transcribing audio with multilingual beam search...")
-        segments, info = model.transcribe(audio_path, beam_size=5)
-        
-        full_text = []
-        for segment in segments:
-            clean_text = normalize_phonetic_financial_speech(segment.text.strip())
-            result["segments"].append({
-                "start": round(segment.start, 2),
-                "end": round(segment.end, 2),
+    def _do_transcribe(dev, ctype):
+        m = WhisperModel(model_size, device=dev, compute_type=ctype)
+        segs, _ = m.transcribe(audio_path, beam_size=5)
+        out_segs = []
+        for s in segs:
+            clean_text = normalize_phonetic_financial_speech(s.text.strip())
+            out_segs.append({
+                "start": round(s.start, 2),
+                "end": round(s.end, 2),
                 "text": clean_text
             })
-            full_text.append(clean_text)
-            
-        result["transcript"] = " ".join(full_text)
-        print(f"[{job_id}] Transcription complete. Extracted {len(result['segments'])} segments.")
+        return m, out_segs
+
+    try:
+        try:
+            print(f"[{job_id}] Loading Whisper Model: {model_size} on {whisper_device} ({compute_type})...")
+            model, extracted_segments = _do_transcribe(whisper_device, compute_type)
+        except Exception as e_cuda:
+            if whisper_device == "cuda":
+                print(f"[{job_id}] CUDA Whisper inference failed ({e_cuda}). Falling back seamlessly to CPU (int8)...")
+                _CUDA_WHISPER_AVAILABLE = False
+                whisper_device = "cpu"
+                compute_type = "int8"
+                model, extracted_segments = _do_transcribe("cpu", "int8")
+            else:
+                raise e_cuda
+
+        result["segments"] = extracted_segments
+        result["transcript"] = " ".join(s["text"] for s in extracted_segments)
+        print(f"[{job_id}] Transcription complete. Extracted {len(result['segments'])} segments: '{result['transcript'][:60]}...'")
         
     except Exception as e:
         print(f"[{job_id}] Transcription stage failed: {e}")

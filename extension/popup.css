@@ -46,7 +46,13 @@ body{
 .btn-primary:disabled{ opacity:.5; cursor:not-allowed; }
 .btn-ghost{ background:transparent; border-color: var(--line-soft); color: var(--text-dim); }
 .btn-ghost:hover{ border-color: var(--gold); color: var(--gold-bright); }
+.btn-secondary{ background: #0a1512; border: 1px solid var(--line-soft); color: var(--text); display:flex; align-items:center; justify-content:space-between; padding: 10px 14px; }
+.btn-secondary:hover{ border-color: var(--gold); color: var(--gold-bright); background: #0d1a16; }
 .btn-full{ width:100%; }
+
+.paste-panel{ display:none; margin-top:10px; animation: rc-in .25s ease; }
+.paste-panel.show{ display:block; }
+#toggleArrow{ font-family: var(--font-mono); font-size:11px; color: var(--gold); }
 
 .error-box{ display:none; margin-top:10px; padding:9px 11px; border-radius:6px; background: rgba(224,87,106,0.08); border:1px solid rgba(224,87,106,0.3); color: var(--crimson-bright); font-family: var(--font-mono); font-size:11px; }
 .error-box.show{ display:block; }

@@ -103,23 +103,30 @@ fintech/
 │   ├── popup.js                    # Popup logic
 │   └── icons/                      # Extension icons (16/48/128px)
 │
-├── temp/                           # Temporary files during processing (auto-cleaned)
-├── dataset/                        # Test datasets
-├── test_vid/                       # Test video files
+├── README.md                       # High-level overview & quick start
+├── DOCUMENTATION.md                # Full technical architecture deep-dive
+├── HACKATHON_GUIDE.md              # Master defense guide & judge Q&A cheat sheet
 │
-├── phase1_scanner.py               # Legacy standalone scanner (Phase 1)
-├── phase2_sebi.py                  # Legacy standalone SEBI checker (Phase 2)
-├── generate_sample.py              # Test sample generator
-├── run_folder_test.py              # Batch folder testing script
-├── download_models.py              # Model downloader
-└── verify_all_models.py            # Model verification script
+├── scripts/                        # Developer & benchmark tools
+│   ├── download_models.py          # Pre-download all ML model weights
+│   ├── verify_all_models.py        # Model verification & isolated VRAM benchmark
+│   ├── run_folder_test.py          # Batch folder evaluation harness
+│   └── generate_sample.py          # Synthetic verification video generator
+│
+├── tests/                          # Evaluation outputs
+│   └── test_results.csv            # Stored benchmark CSV report
+│
+├── temp/                           # Ephemeral runtime scratchpad (auto-purged)
+│   └── .gitkeep
+├── dataset/                        # Reference benchmark datasets (DeepfakeTIMIT)
+└── test_vid/                       # Evaluation video samples (scam_vid / noscam_vid)
 ```
 
 ---
 
 ## 🏗 Pipeline Architecture
 
-### Video Scan (7-Stage Async Pipeline)
+### Video Scan (9-Stage Async Forensic Pipeline)
 
 ```
                         [ Uploaded Video (.mp4) ]
@@ -130,60 +137,91 @@ fintech/
    │  • MoviePy extracts audio track → temp WAV              │
    │  • OpenCV + MTCNN extracts face frames                   │
    │  • Adaptive scene-cut aware sampling (catches splices)   │
+   │  • Input Quality Assessment (Laplacian blur variance)   │
    └──────────────────┬──────────────────┬───────────────────┘
                       │                  │
                       ▼                  ▼
-   ┌──────────────────────┐  ┌──────────────────────────────┐
-   │ Stage 2: Vision      │  │ Stage 3: Audio Deepfake      │
-   │  EfficientNet-B4     │  │  Wav2Vec2 fine-tuned         │
-   │  + Xception SRM      │  │  5-second windowed chunks    │
-   │  (spatial+frequency) │  │  with acoustic normalization │
-   └──────────┬───────────┘  └──────────────┬───────────────┘
-              │                              │
-              │    ┌─────────────────────────┘
+   ┌──────────────────────┐  ┌───────────────────────────────────┐
+   │ Stage 2: Vision      │  │ Stage 4: Transcription            │
+   │  EfficientNet-B4     │  │  faster-whisper (medium, int8)    │
+   │  + Xception SRM      │  │  Multilingual (Hindi+English)     │
+   │  (spatial+frequency) │  │  Phonetic financial normalization │
+   │  + mouth-motion act. │  │  Timestamped subtitle segments    │
+   └──────────┬───────────┘  └─────────────────┬─────────────────┘
+              │                                │
+              │    ┌───────────────────────────┘
               │    │
               ▼    ▼
    ┌──────────────────────────────────────────┐
-   │ Stage 4: Transcription                    │
-   │  faster-whisper (medium, int8)            │
-   │  Multilingual beam search (Hindi+English) │
-   │  Phonetic financial speech normalization   │
-   │  ("say bee" → "SEBI", spoken digits → #)  │
+   │ Stage 3: Audio Deepfake Detection        │
+   │  Wav2Vec2 fine-tuned spoof classifier    │
+   │  5-second windowed chunks & timeline     │
+   │  Finfluencer target impersonation alert  │
    └──────────────────┬───────────────────────┘
                       ▼
    ┌──────────────────────────────────────────┐
-   │ Stage 5: SEBI Compliance LLM              │
-   │  LLaMA 3.1 via Ollama (local)             │
-   │  Multi-signal scoring (6 categories)      │
-   │  Structured JSON output via Pydantic      │
+   │ Stage 5: SEBI Compliance Reasoning       │
+   │  LLaMA 3.1 via Ollama (Local-First)      │
+   │  DPDP Act 2023 PII Masking Shield (PET)  │
+   │  Hinglish Slang & Prompt Injection Guard │
+   │  Deterministic Heuristic Fast Fallback   │
    └──────────────────┬───────────────────────┘
                       ▼
    ┌──────────────────────────────────────────┐
-   │ Stage 6: SEBI Registry Cross-Check        │
-   │  Fuzzy match claimed name/reg number      │
-   │  against local sebi_registry.json         │
+   │ Stage 6: SEBI Registry Cross-Check       │
+   │  Fuzzy match name / reg number against   │
+   │  local SEBI snapshot (August 2026)       │
+   │  TTL-cached with file-mtime awareness    │
    └──────────────────┬───────────────────────┘
                       ▼
    ┌──────────────────────────────────────────┐
-   │ Stage 7: Aggregation & Verdict            │
-   │  Combine vision + audio + SEBI scores     │
-   │  → Safe / Warning / Critical              │
+   │ Stage 7: On-Screen Text Extraction (OCR) │
+   │  EasyOCR (English + Hindi recognition)   │
+   │  Extracts on-screen claims & QR links    │
+   └──────────────────┬───────────────────────┘
+                      ▼
+   ┌──────────────────────────────────────────┐
+   │ Stage 9: APK & Phishing Domain Forensics │
+   │  Androguard manifest permission audit    │
+   │  Levenshtein brand typosquatting scanner │
+   └──────────────────┬───────────────────────┘
+                      ▼
+   ┌──────────────────────────────────────────┐
+   │ Aggregation: Calibrated Decision Engine  │
+   │  Fused multi-modal risk score (0–100%)   │
+   │  → Safe / Suspicious / Warning / Critical│
+   └──────────────────┬───────────────────────┘
+                      ▼
+   ┌──────────────────────────────────────────┐
+   │ Stage 8: SEBI SCORES Evidence Dossier    │
+   │  Automated pre-filing legal draft        │
+   │  For compliance & regulatory review      │
    └──────────────────────────────────────────┘
 ```
 
-### Text Scan (Instant)
+### Text Scan
 ```
-[ Raw Text ] → Stage 5 (LLM) → Stage 6 (Registry) → Verdict
+[ Raw Text ] → Stage 9 (Domain Scan) → Stage 5 (LLM / Heuristic) → Stage 6 (Registry) → Stage 8 (SCORES Dossier) → Verdict
 ```
 
 ### Audio Scan
 ```
-[ Audio File ] → Stage 3 (Deepfake) → Stage 4 (Transcription) → Stage 5 (LLM) → Stage 6 (Registry) → Verdict
+[ Audio File ] → Stage 4 (Transcription) → Stage 3 (Acoustic Spoof) → Stage 5 (LLM) → Stage 6 (Registry) → Stage 8 (SCORES Dossier) → Verdict
 ```
 
 ### Image Scan
 ```
-[ Image File ] → Stage 2 (Face Deepfake) + Stage 7 (OCR) → Stage 5 (LLM) → Stage 6 (Registry) → Verdict
+[ Image File ] → Stage 2 (Face Deepfake) + Stage 7 (OCR) → Stage 9 (Domain Scan) → Stage 5 (LLM) → Stage 6 (Registry) → Stage 8 (SCORES Dossier) → Verdict
+```
+
+### APK Scan
+```
+[ APK File ] → Stage 9 (Manifest Permissions + Broker Typosquatting) → Stage 8 (SCORES Dossier) → Verdict
+```
+
+### URL Scan
+```
+[ URL ] → Stage 9 (Levenshtein Brand Phishing + Punycode Check) → Stage 8 (SCORES Dossier) → Verdict
 ```
 
 ---
@@ -318,11 +356,71 @@ Response: {
 }
 ```
 
+### APK Scan (Sync)
+```
+POST /api/scan/apk
+Content-Type: multipart/form-data
+Body: file=<fake_broker.apk>
+
+Response: {
+  "scan_type": "apk",
+  "apk_result": {
+    "package_name": "com.zerodha.kite3.pro",
+    "is_suspicious": true,
+    "risk_level": "high",
+    "dangerous_permissions": ["READ_SMS", "RECEIVE_SMS", "BIND_ACCESSIBILITY_SERVICE"],
+    "package_typosquat": {
+      "input_package": "com.zerodha.kite3.pro",
+      "closest_legitimate": "com.zerodha.kite3",
+      "broker": "Zerodha",
+      "levenshtein_distance": 4
+    },
+    "reason": "Package name 'com.zerodha.kite3.pro' is a suspected typo-squat of 'com.zerodha.kite3' (Zerodha) | Declares dangerous SMS permissions."
+  },
+  "scores_complaint": "..."
+}
+```
+
+### URL / Domain Phishing Scan (Sync)
+```
+POST /api/scan/url
+Content-Type: application/json
+Body: { "url": "https://groww-bonus-login.xyz/claim" }
+
+Response: {
+  "scan_type": "url",
+  "url_result": {
+    "input": "https://groww-bonus-login.xyz/claim",
+    "normalised_host": "groww-bonus-login.xyz",
+    "is_phishing": true,
+    "risk_level": "high",
+    "matched_legitimate_domain": "groww.in",
+    "legitimate_broker": "Groww",
+    "reason": "PHISHING DETECTED: 'groww-bonus-login.xyz' contains brand keyword 'groww' from legitimate 'groww.in' (Groww)."
+  },
+  "scores_complaint": "..."
+}
+```
+
+### Registry Status & Delta Sync
+```
+GET /api/registry/status
+Response: {
+  "total_records": 24,
+  "last_sync": "2026-08-29T17:15:00",
+  "last_sync_result": "success",
+  "registry_breakdown": { "Investment Adviser": 12, "Research Analyst": 10, "Stock Broker": 2 }
+}
+
+POST /api/admin/sync-registry
+Response: { "status": "sync_queued", "message": "SEBI registry sync started in background" }
+```
+
 ### Health Check
 ```
 GET /api/health
 
-Response: { "status": "ok", "version": "3.0", "service": "FinGuard" }
+Response: { "status": "ok", "version": "4.0", "stages": 9, "service": "FinGuard" }
 ```
 
 ---

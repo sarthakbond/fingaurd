@@ -3,7 +3,7 @@
  * Handles context menus and API communication.
  */
 
-const DEFAULT_API_URL = 'http://localhost:8000';
+const DEFAULT_API_URL = 'http://127.0.0.1:8000';
 
 // ── Context Menu Setup ─────────────────────────────────────────────
 chrome.runtime.onInstalled.addListener(() => {
@@ -32,37 +32,47 @@ chrome.runtime.onInstalled.addListener(() => {
 // ── Context Menu Click Handler ─────────────────────────────────────
 chrome.contextMenus.onClicked.addListener(async (info, tab) => {
   const apiUrl = await getApiUrl();
+  const tabId = tab && tab.id;
 
   if (info.menuItemId === 'finguard-scan-text') {
     const selectedText = info.selectionText;
     if (!selectedText || selectedText.trim().length < 5) {
-      notifyTab(tab.id, { type: 'FINGUARD_ERROR', message: 'Selected text too short to analyze.' });
+      notifyTab(tabId, { type: 'FINGUARD_ERROR', message: 'Selected text too short to analyze.' });
       return;
     }
     try {
-      notifyTab(tab.id, { type: 'FINGUARD_SCANNING', scanType: 'text' });
+      await notifyTab(tabId, { type: 'FINGUARD_SCANNING', scanType: 'text', apiUrl: apiUrl });
       const result = await scanText(apiUrl, selectedText);
-      notifyTab(tab.id, { type: 'FINGUARD_RESULT', scanType: 'text', data: result, result: result });
+      await notifyTab(tabId, {
+        type: 'FINGUARD_RESULT',
+        scanType: 'text',
+        data: result,
+        result: result,
+        scannedText: selectedText,
+        apiUrl: apiUrl
+      });
       // Store last result for popup
-      chrome.storage.local.set({ lastResult: result, lastScanType: 'text', lastScanTime: Date.now() });
+      chrome.storage.local.set({ lastResult: result, lastScanType: 'text', lastScanTime: Date.now(), lastText: selectedText });
     } catch (err) {
-      notifyTab(tab.id, { type: 'FINGUARD_ERROR', message: err.message });
+      console.error('[FinGuard Background] Text scan error:', err);
+      notifyTab(tabId, { type: 'FINGUARD_ERROR', message: err.message || 'Scan failed.', scannedText: selectedText, apiUrl: apiUrl });
     }
   }
 
   if (info.menuItemId === 'finguard-scan-image') {
     const imageUrl = info.srcUrl;
     if (!imageUrl) {
-      notifyTab(tab.id, { type: 'FINGUARD_ERROR', message: 'Could not get image URL.' });
+      notifyTab(tabId, { type: 'FINGUARD_ERROR', message: 'Could not get image URL.' });
       return;
     }
     try {
-      notifyTab(tab.id, { type: 'FINGUARD_SCANNING', scanType: 'image' });
+      await notifyTab(tabId, { type: 'FINGUARD_SCANNING', scanType: 'image' });
       const result = await scanImage(apiUrl, imageUrl);
-      notifyTab(tab.id, { type: 'FINGUARD_RESULT', scanType: 'image', data: result, result: result });
+      await notifyTab(tabId, { type: 'FINGUARD_RESULT', scanType: 'image', data: result, result: result });
       chrome.storage.local.set({ lastResult: result, lastScanType: 'image', lastScanTime: Date.now() });
     } catch (err) {
-      notifyTab(tab.id, { type: 'FINGUARD_ERROR', message: err.message });
+      console.error('[FinGuard Background] Image scan error:', err);
+      notifyTab(tabId, { type: 'FINGUARD_ERROR', message: err.message || 'Image scan failed.' });
     }
   }
 });
@@ -101,20 +111,26 @@ async function getApiUrl() {
 }
 
 async function scanText(apiUrl, text) {
-  const res = await fetch(`${apiUrl}/api/scan/text`, {
+  let endpoint = apiUrl;
+  if (!endpoint.endsWith('/')) {
+    endpoint += '/api/scan/text';
+  } else {
+    endpoint += 'api/scan/text';
+  }
+
+  const res = await fetch(endpoint, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ text })
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({ detail: res.statusText }));
-    throw new Error(err.detail || 'Scan failed');
+    throw new Error(err.detail || `Scan failed: ${res.status}`);
   }
   return res.json();
 }
 
 async function scanImage(apiUrl, imageUrl) {
-  // Download image as blob, then upload to our API
   const imgRes = await fetch(imageUrl);
   const blob = await imgRes.blob();
 
@@ -122,25 +138,54 @@ async function scanImage(apiUrl, imageUrl) {
   const ext = imageUrl.split('.').pop().split('?')[0] || 'jpg';
   fd.append('file', blob, `scan.${ext}`);
 
-  const res = await fetch(`${apiUrl}/api/scan/image`, {
+  let endpoint = apiUrl;
+  if (!endpoint.endsWith('/')) {
+    endpoint += '/api/scan/image';
+  } else {
+    endpoint += 'api/scan/image';
+  }
+
+  const res = await fetch(endpoint, {
     method: 'POST',
     body: fd
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({ detail: res.statusText }));
-    throw new Error(err.detail || 'Image scan failed');
+    throw new Error(err.detail || `Image scan failed: ${res.status}`);
   }
   return res.json();
 }
 
 async function checkHealth(apiUrl) {
-  const res = await fetch(`${apiUrl}/api/health`, { method: 'GET' });
+  let endpoint = apiUrl;
+  if (!endpoint.endsWith('/')) {
+    endpoint += '/api/health';
+  } else {
+    endpoint += 'api/health';
+  }
+  const res = await fetch(endpoint, { method: 'GET' });
   if (!res.ok) throw new Error('Server unreachable');
   return res.json();
 }
 
-function notifyTab(tabId, message) {
-  chrome.tabs.sendMessage(tabId, message).catch(() => {
-    // Content script might not be loaded yet
-  });
+async function notifyTab(tabId, message) {
+  if (!tabId) return;
+  try {
+    await chrome.tabs.sendMessage(tabId, message);
+  } catch (err) {
+    // If content script is not yet present on the tab, dynamically inject it and retry
+    try {
+      if (chrome.scripting) {
+        await chrome.scripting.executeScript({
+          target: { tabId },
+          files: ['content.js']
+        });
+        setTimeout(() => {
+          chrome.tabs.sendMessage(tabId, message).catch(() => {});
+        }, 150);
+      }
+    } catch (injectErr) {
+      console.warn('[FinGuard] Could not inject content script:', injectErr);
+    }
+  }
 }

@@ -34,10 +34,20 @@
 
   <!-- MAIN VIEW -->
   <main id="mainView">
-    <textarea id="quickText" class="quick-text" placeholder="Paste a message, tip, or forward to check…" rows="4"></textarea>
-    <div class="btn-row">
-      <button id="scanBtn" class="btn btn-primary" disabled>Scan Text</button>
-      <button id="demoBtn" class="btn btn-ghost">▶ Demo</button>
+    <div class="toggle-row">
+      <button id="togglePasteBtn" class="btn btn-secondary btn-full" type="button">
+        <span>📋 Paste &amp; Scan Message</span>
+        <span id="toggleArrow">▾</span>
+      </button>
+    </div>
+
+    <!-- COLLAPSIBLE PASTE PANEL (Hidden by default) -->
+    <div id="pastePanel" class="paste-panel">
+      <textarea id="quickText" class="quick-text" placeholder="Paste a message, tip, or forward to check…" rows="4"></textarea>
+      <div class="btn-row">
+        <button id="scanBtn" class="btn btn-primary" disabled>Scan Text</button>
+        <button id="demoBtn" class="btn btn-ghost">▶ Demo</button>
+      </div>
     </div>
     <div id="errorBox" class="error-box"></div>
 
@@ -49,7 +59,7 @@
           <div id="resultDesc" class="result-desc"></div>
         </div>
       </div>
-      <div class="mini-meter"><div id="resultMeterFill" class="mini-meter__fill"></div></div>
+      <div class="mini-meter" style="display:none;"><div id="resultMeterFill" class="mini-meter__fill"></div></div>
       <div id="resultTopFlag" class="result-flag"></div>
       <button id="openDashboardBtn" class="link-btn">Open full forensic dashboard ↗</button>
     </div>

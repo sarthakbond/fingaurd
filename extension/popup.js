@@ -1,6 +1,6 @@
 "use strict";
 
-const DEFAULT_API_URL = "http://localhost:8000";
+const DEFAULT_API_URL = "http://127.0.0.1:8000";
 
 const $ = (id) => document.getElementById(id);
 
@@ -8,6 +8,7 @@ const els = {
   statusDot: $("statusDot"), statusText: $("statusText"),
   settingsBtn: $("settingsBtn"), settingsPanel: $("settingsPanel"),
   apiUrlInput: $("apiUrlInput"), saveSettingsBtn: $("saveSettingsBtn"),
+  togglePasteBtn: $("togglePasteBtn"), pastePanel: $("pastePanel"), toggleArrow: $("toggleArrow"),
   quickText: $("quickText"), scanBtn: $("scanBtn"), demoBtn: $("demoBtn"),
   errorBox: $("errorBox"), resultCard: $("resultCard"),
   resultStamp: $("resultStamp"), resultTitle: $("resultTitle"), resultDesc: $("resultDesc"),
@@ -127,6 +128,18 @@ els.settingsBtn.addEventListener("click", () => {
   els.settingsPanel.classList.toggle("show");
 });
 
+if (els.togglePasteBtn && els.pastePanel) {
+  els.togglePasteBtn.addEventListener("click", () => {
+    const isShowing = els.pastePanel.classList.toggle("show");
+    if (els.toggleArrow) {
+      els.toggleArrow.textContent = isShowing ? "▴" : "▾";
+    }
+    if (isShowing && els.quickText) {
+      els.quickText.focus();
+    }
+  });
+}
+
 els.saveSettingsBtn.addEventListener("click", async () => {
   const value = els.apiUrlInput.value.trim().replace(/\/+$/, "");
   apiUrl = value || DEFAULT_API_URL;
@@ -161,11 +174,14 @@ els.demoBtn.addEventListener("click", () => {
   renderMiniResult(DEMO_RESULT);
 });
 
-els.openDashboardBtn.addEventListener("click", () => {
+els.openDashboardBtn.addEventListener("click", async () => {
+  const stored = await getStorage(["lastText"]);
+  const textToPass = els.quickText.value.trim() || stored.lastText || "";
+  const targetUrl = textToPass ? `${apiUrl}/?scanText=${encodeURIComponent(textToPass)}` : apiUrl;
   if (typeof chrome !== "undefined" && chrome.tabs && chrome.tabs.create) {
-    chrome.tabs.create({ url: apiUrl });
+    chrome.tabs.create({ url: targetUrl });
   } else {
-    window.open(apiUrl, "_blank", "noopener,noreferrer");
+    window.open(targetUrl, "_blank", "noopener,noreferrer");
   }
 });
 

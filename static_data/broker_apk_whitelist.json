@@ -1,0 +1,110 @@
+[
+  {
+    "broker": "Zerodha",
+    "package_names": ["com.zerodha.kite3"],
+    "domains": ["zerodha.com", "kite.zerodha.com"],
+    "app_store_ids": {"android": "com.zerodha.kite3", "ios": "1368323099"}
+  },
+  {
+    "broker": "Groww",
+    "package_names": ["com.nextbillion.groww"],
+    "domains": ["groww.in"],
+    "app_store_ids": {"android": "com.nextbillion.groww", "ios": "1404263434"}
+  },
+  {
+    "broker": "Angel One",
+    "package_names": ["com.msf.kite", "com.angelbroking.angelone"],
+    "domains": ["angelone.in", "angelbroking.com"],
+    "app_store_ids": {"android": "com.msf.kite"}
+  },
+  {
+    "broker": "Upstox",
+    "package_names": ["in.upstox.client"],
+    "domains": ["upstox.com"],
+    "app_store_ids": {"android": "in.upstox.client", "ios": "1344565615"}
+  },
+  {
+    "broker": "5paisa",
+    "package_names": ["com.fivepaisa.trade"],
+    "domains": ["5paisa.com"],
+    "app_store_ids": {"android": "com.fivepaisa.trade"}
+  },
+  {
+    "broker": "ICICI Direct",
+    "package_names": ["com.icicisecurities.isecurities"],
+    "domains": ["icicidirect.com", "icicisecurities.com"],
+    "app_store_ids": {"android": "com.icicisecurities.isecurities"}
+  },
+  {
+    "broker": "HDFC Securities",
+    "package_names": ["com.hdfcsec.hdfcsky"],
+    "domains": ["hdfcsec.com"],
+    "app_store_ids": {"android": "com.hdfcsec.hdfcsky"}
+  },
+  {
+    "broker": "Kotak Securities",
+    "package_names": ["com.kotak.securities.neo"],
+    "domains": ["kotaksecurities.com"],
+    "app_store_ids": {"android": "com.kotak.securities.neo"}
+  },
+  {
+    "broker": "Sharekhan",
+    "package_names": ["com.sharekhan.android"],
+    "domains": ["sharekhan.com"],
+    "app_store_ids": {"android": "com.sharekhan.android"}
+  },
+  {
+    "broker": "Paytm Money",
+    "package_names": ["com.paytmmoney.invest"],
+    "domains": ["paytmmoney.com"],
+    "app_store_ids": {"android": "com.paytmmoney.invest"}
+  },
+  {
+    "broker": "Kuvera",
+    "package_names": ["com.kuvera.app"],
+    "domains": ["kuvera.in"],
+    "app_store_ids": {"android": "com.kuvera.app"}
+  },
+  {
+    "broker": "Dhan",
+    "package_names": ["co.dhan.app"],
+    "domains": ["dhan.co"],
+    "app_store_ids": {"android": "co.dhan.app"}
+  },
+  {
+    "broker": "FYERS",
+    "package_names": ["com.fyers.tos"],
+    "domains": ["fyers.in"],
+    "app_store_ids": {"android": "com.fyers.tos"}
+  },
+  {
+    "broker": "Motilal Oswal",
+    "package_names": ["com.msfl.mosttrade"],
+    "domains": ["motilaloswal.com"],
+    "app_store_ids": {"android": "com.msfl.mosttrade"}
+  },
+  {
+    "broker": "Smallcase",
+    "package_names": ["com.smallcase.invest"],
+    "domains": ["smallcase.com"],
+    "app_store_ids": {"android": "com.smallcase.invest"}
+  },
+  {
+    "broker": "ET Money",
+    "package_names": ["com.etmoney.app"],
+    "domains": ["etmoney.com"],
+    "app_store_ids": {"android": "com.etmoney.app"}
+  },
+  {
+    "broker": "SBI Securities",
+    "package_names": ["com.sbismart.android"],
+    "domains": ["sbismart.in"],
+    "app_store_ids": {"android": "com.sbismart.android"}
+  },
+  {
+    "broker": "Axis Direct",
+    "package_names": ["com.axis.mobile.axisdirect"],
+    "domains": ["axisdirect.in"],
+    "app_store_ids": {"android": "com.axis.mobile.axisdirect"}
+  }
+]

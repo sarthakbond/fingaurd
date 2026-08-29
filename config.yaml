@@ -6,15 +6,55 @@ thresholds:
   vision_fake_threshold: 0.5
   audio_fake_threshold: 0.5
   sebi_risk_threshold: 0.7
+  # Per-segment flag threshold for audio timeline scrubber
+  audio_segment_flag_threshold: 0.45
+  # Impersonation alert: audio spoof score must exceed this to trigger alert
+  impersonation_audio_threshold: 0.45
+  # Scene-cut detection: mean pixel diff above this = new scene
+  scene_cut_threshold: 35.0
+  # OCR: skip text blocks below this confidence
+  ocr_min_confidence: 0.15
+  # Composite scam trigger threshold (LLM stage)
+  scam_composite_threshold: 0.35
+  # Auto-flag threshold inside LLM stage when composite risk exceeds this
+  llm_risk_auto_flag_threshold: 0.45
+  # Registry fuzzy match thresholds
+  registry_name_number_match_score: 65
+  registry_name_only_match_score: 80
+  # APK / domain scanner
+  apk_domain_levenshtein_max_dist: 3
+
+vision:
+  # Early-exit: if this many leading frames all score above early_exit_score, skip remaining frames
+  early_exit_frame_count: 4
+  early_exit_score: 0.92
+  # Consensus blend: (consensus_top_weight * top_k_mean) + (1 - consensus_top_weight) * peak
+  consensus_top_weight: 0.65
+  # Minimum frames to use consensus vs raw peak
+  consensus_min_frames: 3
+
+audio:
+  # Chunk size in seconds for audio deepfake scanning
+  chunk_duration_seconds: 5.0
+  # Consensus blend weights (same formula as vision)
+  consensus_top_weight: 0.65
+  consensus_min_chunks: 2
+
+server:
+  max_upload_mb: 100
+  preload_models: false   # Set true on demo machine to pre-warm VRAM
 
 pipeline:
   stage1_ingest:
     max_frames_to_extract: 25
+    min_frames_floor: 15
     audio_sample_rate: 16000
     face_detector_model: "MTCNN"
+    face_crop_margin_px: 25
   
   stage2_vision:
     model_id: "AdityaManojShinde/deepfake-detector"
+    model_weights_file: "deepfake_detector_phase2.pth"
     use_cpu: false
     
   stage3_audio:
@@ -24,20 +64,34 @@ pipeline:
   stage4_transcription:
     model_id: "Systran/faster-whisper-medium"
     compute_type: "int8"
-    use_cpu: false
+    use_cpu: true
     
   stage5_llm:
     model_id: "llama3.1:latest"
     api_url: "http://localhost:11434/api/chat"
+    # Timeout (seconds) for short transcripts (<400 chars)
+    timeout_short_sec: 3.5
+    # Timeout (seconds) for long video transcripts
+    timeout_long_sec: 30.0
     
   stage6_registry:
     # URL to fetch or path to mock file
     source: "static_data/sebi_registry.json" 
-    refresh_interval_hours: 168
+    refresh_interval_hours: 24
+
+  stage9_apk_domain:
+    apk_whitelist: "static_data/broker_apk_whitelist.json"
+    dangerous_permissions:
+      - "READ_SMS"
+      - "RECEIVE_SMS"
+      - "READ_CONTACTS"
+      - "BIND_ACCESSIBILITY_SERVICE"
+      - "PACKAGE_USAGE_STATS"
 
 backup_apis:
   # Set to true during hackathon if you want to enable cloud API fallbacks
   enable_cloud_fallback: false
   sightengine:
     enabled: false
+    fake_score_threshold: 0.5
     models: "deepfake,genai"
