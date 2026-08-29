@@ -69,30 +69,50 @@ It runs entirely on your laptop GPU (NVIDIA RTX 4050, 6GB VRAM) with **zero clou
 
 ```
 fintech/
-├── app.py                          # FastAPI main application (all API endpoints)
-├── model.py                        # HybridDeepfakeDetector PyTorch model definition
-├── config.yaml                     # All thresholds, model IDs, pipeline config
-├── requirements.txt                # Python dependencies
-├── .env                            # API keys (HF_TOKEN, Sightengine)
+├── app.py                          # FastAPI main application (all API endpoints & background jobs)
+├── model.py                        # Root import shim for HybridDeepfakeDetector
+├── config.yaml                     # All thresholds, model IDs, pipeline config (zero hardcoding)
+├── requirements.txt                # Pinned Python dependencies
+├── .env.example                    # Template for environment secrets
+├── README.md                       # High-level overview & quick start
+├── DOCUMENTATION.md                # Full technical architecture deep-dive
+├── HACKATHON_GUIDE.md              # Master defense guide & judge Q&A cheat sheet
+├── TEAM_ONBOARDING_GUIDE.md        # Complete developer & team onboarding guide
+├── progress1.md                    # Comprehensive Architecture Blueprint & File Directory
 │
 ├── src/
-│   ├── config.py                   # Config loader (YAML + .env)
-│   ├── backup_api.py               # Sightengine cloud fallback
+│   ├── config.py                   # Typed YAML config & environment loader
+│   ├── model.py                    # HybridDeepfakeDetector PyTorch neural network
+│   ├── backup_api.py               # Optional Sightengine cloud fallback adapter
 │   └── stages/
 │       ├── __init__.py
-│       ├── stage1_ingest.py        # Video → frames + audio extraction
-│       ├── stage2_vision.py        # Face deepfake detection (EfficientNet+Xception)
-│       ├── stage3_audio.py         # Audio deepfake detection (Wav2Vec2)
-│       ├── stage4_transcription.py # Speech-to-text (faster-whisper)
-│       ├── stage5_llm.py           # SEBI compliance LLM (multi-signal scoring)
-│       ├── stage6_registry.py      # SEBI registry fuzzy matching
-│       └── stage7_ocr.py           # OCR text extraction (EasyOCR)
+│       ├── stage1_ingest.py        # Video → frames + audio extraction + Laplacian quality index
+│       ├── stage2_vision.py        # Face deepfake detection (Spatial + SRM Frequency + Visemes)
+│       ├── stage3_audio.py         # Audio deepfake detection (Wav2Vec2 + Finfluencer check)
+│       ├── stage4_transcription.py # Speech-to-text (faster-whisper + phonetic normalizer)
+│       ├── stage5_llm.py           # SEBI compliance LLM (DPDP PET shield + Heuristic engine)
+│       ├── stage6_registry.py      # SEBI registry fuzzy matching with in-memory TTL caching
+│       ├── stage7_ocr.py           # OCR text extraction (EasyOCR Hindi + English)
+│       ├── stage8_report.py        # Pre-filing SEBI SCORES 2.0 evidence dossier generator
+│       └── stage9_apk_domain.py    # Rogue APK manifest inspector & phishing domain auditor
 │
-├── static/
-│   └── index.html                  # Frontend dashboard (single file, self-contained)
+├── static/                         # Frontend Web Dashboard
+│   ├── index.html                  # Modern glassmorphic SPA dashboard
+│   ├── legacy-index.html           # Reference legacy UI
+│   ├── css/
+│   │   ├── app.css                 # Responsive layout & component styling
+│   │   └── core.css                # Design system tokens, typography, and animations
+│   ├── js/
+│   │   ├── api.js                  # Frontend HTTP transport & job polling
+│   │   ├── dom.js                  # DOM selectors and helper utilities
+│   │   ├── main.js                 # App controller & media playback orchestrator
+│   │   ├── model.js                # View model transformer & evidence builder
+│   │   └── stages.js               # 9-stage pipeline metadata and progress steps
+│   └── videos/                     # Demo & background video assets
 │
 ├── static_data/
-│   └── sebi_registry.json          # Local SEBI registered intermediary database
+│   ├── sebi_registry.json          # Local SEBI registered intermediary database (Aug 2026 snapshot)
+│   └── broker_apk_whitelist.json   # Legitimate broker app package names & official domains
 │
 ├── extension/                      # Chrome Extension (Manifest V3)
 │   ├── manifest.json
@@ -103,18 +123,18 @@ fintech/
 │   ├── popup.js                    # Popup logic
 │   └── icons/                      # Extension icons (16/48/128px)
 │
-├── README.md                       # High-level overview & quick start
-├── DOCUMENTATION.md                # Full technical architecture deep-dive
-├── HACKATHON_GUIDE.md              # Master defense guide & judge Q&A cheat sheet
-│
-├── scripts/                        # Developer & benchmark tools
-│   ├── download_models.py          # Pre-download all ML model weights
-│   ├── verify_all_models.py        # Model verification & isolated VRAM benchmark
+├── scripts/                        # Developer, Benchmark & Operational Tooling
+│   ├── self_test.py                # 13-point automated unit & integration regression suite
+│   ├── e2e_system_test.py          # 7-point live end-to-end API stress test
+│   ├── sync_sebi_registry.py       # Standalone SEBI master sync daemon & CLI
 │   ├── run_folder_test.py          # Batch folder evaluation harness
-│   └── generate_sample.py          # Synthetic verification video generator
+│   ├── audit_hardcoded.py          # Static scan asserting zero hardcoded values
+│   ├── download_models.py          # Pre-download all ML model weights
+│   ├── generate_sample.py          # Synthetic verification media generator
+│   └── verify_all_models.py        # Model verification & isolated VRAM benchmark
 │
-├── tests/                          # Evaluation outputs
-│   └── test_results.csv            # Stored benchmark CSV report
+├── tests/                          # Evaluation outputs & verification
+│   └── test_verification.py        # Model pipeline unit verification test
 │
 ├── temp/                           # Ephemeral runtime scratchpad (auto-purged)
 │   └── .gitkeep

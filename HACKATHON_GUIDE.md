@@ -53,8 +53,10 @@ When judges ask: *"Where are uploaded files saved?", "How do you handle data pri
 - **`src/stages/stage9_apk_domain.py`**: Decompiles Android APK manifests to detect dangerous permissions and audits domains using Levenshtein distance against broker whitelists.
 
 ### 🎨 `static/` & 📊 `static_data/`
-- **`static/index.html`**: The single-page web dashboard with dark-mode aesthetics, drag-and-drop upload, live pipeline stage stepper, risk scrubber, and SCORES complaint viewer.
-- **`static_data/sebi_registry.json`**: Offline JSON database of SEBI registered entities and advisors for instant local lookup.
+- **`static/index.html`**: The modern SPA web dashboard with dark-mode aesthetics, drag-and-drop upload, live 9-stage pipeline progress stepper, timeline scrubber, and SCORES complaint viewer.
+- **`static/css/` & `static/js/`**: Modular HSL styling (`app.css`, `core.css`) and client modules (`api.js`, `dom.js`, `main.js`, `model.js`, `stages.js`).
+- **`static_data/sebi_registry.json`**: Offline JSON database of SEBI registered entities and advisors (Aug 2026 snapshot) for instant local lookup.
+- **`static_data/broker_apk_whitelist.json`**: Official whitelist of verified broker package names, certificate fingerprints, and legitimate domains.
 
 ### 🧩 `extension/` (Browser Integration)
 - **`extension/manifest.json`**: Chrome Extension Manifest V3 configuration defining permissions, context menus, and content scripts.
@@ -63,7 +65,11 @@ When judges ask: *"Where are uploaded files saved?", "How do you handle data pri
 - **`extension/popup.html` / `popup.css` / `popup.js`**: Popup UI for quick-scan URL submission, backend health checks, and recent scan logs.
 - **`extension/icons/`**: Extension icon assets in 16px, 48px, and 128px formats.
 
-### 🛠️ `scripts/` (Developer & Benchmark Tools)
+### 🛠️ `scripts/` (Developer, Benchmark & Operational Tooling)
+- **`scripts/self_test.py`**: 13-point automated unit & integration regression test suite.
+- **`scripts/e2e_system_test.py`**: 7-point live end-to-end API stress test validating all endpoints.
+- **`scripts/sync_sebi_registry.py`**: Standalone daemon and CLI tool to synchronize local SEBI registry master files.
+- **`scripts/audit_hardcoded.py`**: Static scanner asserting zero hardcoded values remain outside `config.yaml`.
 - **`scripts/run_folder_test.py`**: Batch evaluation harness that runs the entire pipeline on a directory of videos and generates `tests/test_results.csv`.
 - **`scripts/verify_all_models.py`**: Benchmarking script that tests each ML model in isolation, reports peak VRAM usage, and verifies memory release.
 - **`scripts/download_models.py`**: Pre-downloads all required HuggingFace and Whisper model weights to the local cache.

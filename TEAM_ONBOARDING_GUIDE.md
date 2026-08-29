@@ -1,6 +1,6 @@
 # 🛡️ FinGuard (FraudShield-SEBI Pro) — Complete Team Master Guide
 
-> **For New Teammates**: This document explains **EVERYTHING** you need to know about FinGuard: what the project does, how the 8-stage pipeline works under the hood, how we handle files & privacy, why low-quality phone videos behave the way they do, how to run the project, and how to defend it to hackathon judges.
+> **For New Teammates**: This document explains **EVERYTHING** you need to know about FinGuard: what the project does, how the 9-stage pipeline works under the hood, how we handle files & privacy, why low-quality phone videos behave the way they do, how to run the project, and how to defend it to hackathon judges.
 
 ---
 
